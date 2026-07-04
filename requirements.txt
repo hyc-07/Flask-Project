@@ -1,6 +1,7 @@
-flask
-flask-login
-flask-wtf
-werkzeug
-flask-socketio
-gevent
+Flask
+Flask-Login
+Flask-WTF
+Werkzeug
+Flask-SocketIO
+gunicorn
+eventlet
