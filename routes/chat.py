@@ -15,13 +15,10 @@ from models import Message
 @chat.route("/history")
 @login_required
 def chat_history():
-    """
-    返回最近 50 条消息
-    """
     messages = (
         Message.query
         .order_by(Message.timestamp.asc())
-        .limit(50)
+        .limit(70)
         .all()
     )
 
