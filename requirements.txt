@@ -1,0 +1,6 @@
+flask
+flask-login
+flask-wtf
+werkzeug
+flask-socketio
+gevent
