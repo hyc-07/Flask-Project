@@ -18,8 +18,8 @@ def create_app():
     socketio = SocketIO(
         app,
         cors_allowed_origins="*",
-        async_mode="gevent",
-        websocket=True
+        async_mode = "gevent",
+        websocket = True
     )
 
     @login_manager.user_loader
