@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册验证</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        /* 题号 */
+        .question-count {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* 题目滑动容器（旧题左移，新题从左进） */
+        .question-wrapper {
+            overflow: hidden;
+            height: 120px;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .question-slider {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .question-text {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            font-size: 28px;
+            text-align: center;
+            color: #2d3748;
+            line-height: 1.6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 当前题在中间 */
+        #currentQuestion {
+            left: 0;
+        }
+
+        /* 下一道题在左边（等待进入） */
+        #nextQuestion {
+            left: -100%;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 120px;
+            border-bottom: 3px solid #4a6fa5;
+            color: #4a6fa5;
+            font-weight: bold;
+            margin: 0 8px;
+            padding-bottom: 4px;
+        }
+
+        /* 选项区域 */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .option-btn {
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .option-btn:hover:not(.correct):not(.wrong) {
+            background: #e2e8f0;
+            border-color: #4a6fa5;
+        }
+
+        /* 选中正确：绿色边框 */
+        .option-btn.correct {
+            border-color: #10b981 !important;
+            background-color: #d1fae5 !important;
+            color: #065f46 !important;
+        }
+
+        /* 选中错误：红色边框 */
+        .option-btn.wrong {
+            border-color: #ef4444 !important;
+            background-color: #fee2e2 !important;
+            color: #991b1b !important;
+        }
+
+        /* 失败提示（答错时显示） */
+        .fail-tip {
+            text-align: center;
+            font-size: 18px;
+            color: #991b1b;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+            display: none;
+        }
+
+        .fail-tip a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .fail-tip a:hover {
+            text-decoration: underline;
+        }
+
+        /* ✅ 加载动画（抄自chat.html） */
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 14px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ✅ 注册成功提示 */
+        .success-tip {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #10b981;
+            font-size: 18px;
+            font-weight: 600;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+        }
+
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="question-count" id="questionCount">填空题：1/8题</div>
+
+        <div class="question-wrapper">
+            <div class="question-slider" id="questionSlider">
+                <!-- 当前题目 -->
+                <div class="question-text" id="currentQuestion"></div>
+                <!-- 下一道题目（动画用） -->
+                <div class="question-text" id="nextQuestion"></div>
+            </div>
+        </div>
+
+        <div class="options-container" id="optionsContainer"></div>
+        <div class="fail-tip" id="failTip">✗ 验证失败，<a href="/register">返回注册</a></div>
+
+        <!-- ✅ 加载动画（抄自chat.html） -->
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="loading-spinner"></div>
+            <span>正在注册，请稍候...</span>
+        </div>
+
+        <!-- ✅ 注册成功提示 -->
+        <div class="success-tip" id="successTip">
+            <div class="success-icon">✓</div>
+            <span>注册成功！</span>
+        </div>
+    </div>
+
+    <script>
+        // ✅ 严格对齐给定列表
+        const wordList = [
+            "数量正在研发", "酸碱盐在远方", "我们气氛活跃", "显然很吸引人",
+            "会议通知之日", "显然很直接", "会员充值信仰", "中考完才恍然",
+            "刘耀文连体裤", "列车员在国外", "薄荷在雪原", "评价最高的",
+            "爷爷要打张健", "列车员旅游局"
+        ];
+
+        // 5字词分段规则
+        const fiveCharWords = {
+            "显然很直接": { part1: "显然很", part2: "直接" },
+            "薄荷在雪原": { part1: "薄荷", part2: "在雪原" },
+            "评价最高的": { part1: "评价最", part2: "高的" }
+        };
+
+        // 等价选项（拼音首字母相同）
+        const equivalentOptions = {
+            "在研发": "在远方",
+            "在远方": "在研发"
+        };
+
+        let currentQuestionIndex = 0;
+        let questions = []; // 预存8道题
+        let isAnswered = false;
+
+        // DOM元素
+        const questionCountEl = document.getElementById("questionCount");
+        const questionSlider = document.getElementById("questionSlider");
+        const currentQuestionEl = document.getElementById("currentQuestion");
+        const nextQuestionEl = document.getElementById("nextQuestion");
+        const optionsContainer = document.getElementById("optionsContainer");
+        const failTip = document.getElementById("failTip");
+        const loadingIndicator = document.getElementById("loadingIndicator");
+        const successTip = document.getElementById("successTip");
+
+        // 初始化：预生成8道题（确保不重复）
+        function init() {
+            generateAllQuestions();
+            showQuestion(0);
+        }
+
+        // 预生成8道不重复的题目
+        function generateAllQuestions() {
+            questions = [];
+
+            // 分离6字词和5字词
+            const sixCharWords = wordList.filter(word => !fiveCharWords[word] && word.length === 6);
+            const fiveCharWordsList = Object.keys(fiveCharWords);
+
+            // 创建可选择的词池
+            let availableSixChar = [...sixCharWords];
+            let availableFiveChar = [...fiveCharWordsList];
+
+            // 确保有足够题目
+            if (availableSixChar.length + availableFiveChar.length < 8) {
+                console.error("词库不足8个，无法生成不重复题目");
+                return;
+            }
+
+            for (let i = 0; i < 8; i++) {
+                const question = {};
+
+                // 70%概率选6字词，但要确保还有可用的6字词
+                let useSixChar = Math.random() > 0.3;
+
+                // 如果没有可用的6字词，强制选5字词
+                if (useSixChar && availableSixChar.length === 0) {
+                    useSixChar = false;
+                }
+
+                // 如果没有可用的5字词，强制选6字词
+                if (!useSixChar && availableFiveChar.length === 0) {
+                    useSixChar = true;
+                }
+
+                if (useSixChar) {
+                    // 从可用6字词中随机选择一个
+                    const randomIndex = Math.floor(Math.random() * availableSixChar.length);
+                    question.word = availableSixChar[randomIndex];
+                    // 从可用列表中移除，确保不重复
+                    availableSixChar.splice(randomIndex, 1);
+
+                    question.type = "sixChar";
+                    question.blankPosition = Math.random() > 0.5 ? "front" : "back";
+
+                    if (question.blankPosition === "front") {
+                        // 显示前3字→填空后3字
+                        const shownPart = question.word.substring(0, 3);
+                        question.correct = question.word.substring(3, 6);
+                        question.display = `${shownPart}<span class="blank">___</span>`;
+                    } else {
+                        // 显示后3字→填空前3字
+                        const shownPart = question.word.substring(3, 6);
+                        question.correct = question.word.substring(0, 3);
+                        question.display = `<span class="blank">___</span>${shownPart}`;
+                    }
+                } else {
+                    // 从可用5字词中随机选择一个
+                    const randomIndex = Math.floor(Math.random() * availableFiveChar.length);
+                    question.word = availableFiveChar[randomIndex];
+                    // 从可用列表中移除，确保不重复
+                    availableFiveChar.splice(randomIndex, 1);
+
+                    question.type = "fiveChar";
+                    const parts = fiveCharWords[question.word];
+                    const blankFirstPart = Math.random() > 0.5;
+
+                    if (blankFirstPart) {
+                        question.correct = parts.part1;
+                        question.display = `<span class="blank">___</span>${parts.part2}`;
+                    } else {
+                        question.correct = parts.part2;
+                        question.display = `${parts.part1}<span class="blank">___</span>`;
+                    }
+                }
+
+                // 生成选项（均来自列表）
+                question.options = generateOptionsForQuestion(question);
+                questions.push(question);
+            }
+        }
+
+        // 生成选项（严格从列表中取）
+        function generateOptionsForQuestion(question) {
+            let options = [question.correct];
+
+            while (options.length < 3) {
+                let randomOption;
+
+                if (question.type === "sixChar") {
+                    // 从6字词中取其他词的部分
+                    const sixCharWords = wordList.filter(word => !fiveCharWords[word] && word.length === 6 && word !== question.word);
+                    const randomWord = sixCharWords[Math.floor(Math.random() * sixCharWords.length)];
+                    randomOption = question.blankPosition === "front" ? randomWord.substring(3, 6) : randomWord.substring(0, 3);
+
+                    if (equivalentOptions[question.correct] === randomOption) continue;
+                } else {
+                    // 从5字词中取其他词的部分
+                    const fiveCharKeys = Object.keys(fiveCharWords).filter(word => word !== question.word);
+                    const randomWord = fiveCharKeys[Math.floor(Math.random() * fiveCharKeys.length)];
+                    const parts = fiveCharWords[randomWord];
+                    randomOption = Math.random() > 0.5 ? parts.part1 : parts.part2;
+                }
+
+                if (!options.includes(randomOption)) {
+                    options.push(randomOption);
+                }
+            }
+
+            return shuffleArray(options);
+        }
+
+        // 打乱数组
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 显示题目
+        function showQuestion(index) {
+            if (index >= 8) {
+                // 全部答对，通知后端
+                showCompletion();
+                return;
+            }
+
+            const question = questions[index];
+            questionCountEl.textContent = `填空题：${index + 1}/8题`;
+            currentQuestionEl.innerHTML = question.display;
+
+            // 设置下一道题（动画用）
+            if (index + 1 < 8) {
+                nextQuestionEl.innerHTML = questions[index + 1].display;
+            }
+
+            // ✅ 重置动画位置（回到初始状态）
+            questionSlider.style.transform = "translateX(0)";
+            renderOptions(question.options);
+            isAnswered = false;
+            failTip.style.display = "none";
+        }
+
+        // 渲染选项
+        function renderOptions(options) {
+            optionsContainer.innerHTML = "";
+
+            options.forEach((option, index) => {
+                const btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
+                btn.dataset.value = option;
+
+                btn.addEventListener("click", () => {
+                    if (isAnswered) return;
+                    checkAnswer(option, btn);
+                });
+
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        // 检查答案
+        function checkAnswer(selectedValue, selectedBtn) {
+            isAnswered = true;
+            const currentQuestion = questions[currentQuestionIndex];
+            let isCorrect = selectedValue === currentQuestion.correct;
+
+            if (!isCorrect && equivalentOptions[currentQuestion.correct] === selectedValue) {
+                isCorrect = true;
+            }
+
+            // 仅选中项变色
+            selectedBtn.classList.add(isCorrect ? "correct" : "wrong");
+
+            if (isCorrect) {
+                currentQuestionIndex++;
+
+                // ✅ 动画：旧题左移移出，新题从左边移到中间
+                setTimeout(() => {
+                    questionSlider.style.transform = "translateX(-100%)";
+                }, 300);
+
+                // 动画结束后更新题目
+                setTimeout(() => {
+                    showQuestion(currentQuestionIndex);
+                }, 800);
+            } else {
+                // 答错：显示失败提示
+                failTip.style.display = "block";
+            }
+        }
+
+        // 8题全部答对：通知后端创建用户
+        function showCompletion() {
+            // ✅ 显示加载动画
+            loadingIndicator.style.display = "flex";
+
+            fetch('/verify_success', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // ✅ 隐藏加载动画
+                loadingIndicator.style.display = "none";
+
+                if (data.status === 'success') {
+                    // ✅ 显示注册成功提示
+                    successTip.style.display = "flex";
+
+                    // ✅ 1秒后跳转
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1000);
+                } else {
+                    alert(data.message);
+                    window.location.href = '/register';
+                }
+            })
+            .catch(error => {
+                // ✅ 隐藏加载动画
+                loadingIndicator.style.display = "none";
+                console.error('验证通过请求失败:', error);
+                window.location.href = '/register';
+            });
+        }
+
+        // 启动
+        window.onload = init;
+    </script>
+</body>
+</html>
