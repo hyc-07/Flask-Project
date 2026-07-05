@@ -14,7 +14,9 @@ class User(UserMixin, db.Model):
     def check_password(self, pwd):
         return check_password_hash(self.password_hash, pwd)
 
+# models.py
 from datetime import datetime
+import pytz
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -23,3 +25,10 @@ class Message(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship('User', backref='messages')
+
+    # ✅ 新增：返回 UTC+8 时间字符串
+    @property
+    def beijing_time_str(self):
+        beijing = pytz.timezone("Asia/Shanghai")
+        local_time = self.timestamp.replace(tzinfo=pytz.utc).astimezone(beijing)
+        return local_time.strftime("%H:%M")
