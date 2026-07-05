@@ -353,7 +353,7 @@
         upgrade: false
     });
 
-    const currentUsername = "{{ current_user.username }}";
+    window.currentUsername = "{{ current_user.username }}";
 
     /**
      * ✅ 页面加载时拉取历史消息
@@ -416,7 +416,7 @@
             const div = document.createElement('div');
             div.className = 'online-user-item';
 
-            const isMe = user.username === currentUsername;
+            const isMe = user.username === window.currentUsername;
             const dotColor = user.online ? '#66CD66' : '#cccccc';
 
             div.innerHTML = `
