@@ -440,26 +440,31 @@
         });
     }
 
-    /**
-     * ✅ 追加单条消息（时间移到气泡外）
-     */
     function appendMessage(data) {
         const div = document.createElement('div');
         const isSelf = data.username === currentUsername;
-
         div.className = 'message ' + (isSelf ? 'self' : 'other');
 
-        // ✅ 用户名（仅他人显示）
         const senderHtml = !isSelf ? `
             <div class="sender-name">${data.username}</div>
         ` : '';
 
-        // ✅ 气泡 + 时间（时间放在气泡外面）
+        // ✅ 前端转本地时间
+        const localTime = new Date(data.timestamp + 'Z').toLocaleTimeString(
+            navigator.language,
+            {
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                hour: '2-digit',
+                minute: '2-digit'
+            }
+        );
+
         div.innerHTML = `
             ${senderHtml}
             <div class="bubble">${data.content}</div>
-            <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
+            <div class="time ${isSelf ? 'self-time' : 'other-time'}">${localTime}</div>
         `;
+
         document.getElementById('messages').appendChild(div);
     }
 
@@ -487,10 +492,17 @@
     /**
      * ✅ 接收新消息（实时）
      */
-    socket.on('new_message', function (data) {
-        appendMessage(data);
-        const box = document.getElementById('messages');
-        box.scrollTop = box.scrollHeight;
+    socket.on('new_message', function(msg) {
+        const time = new Date(msg.timestamp + 'Z').toLocaleTimeString(
+            navigator.language,
+            {
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                hour: '2-digit',
+                minute: '2-digit'
+            }
+        );
+
+        appendMessage(msg.username, msg.content, time);
     });
 </script>
 
