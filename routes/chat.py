@@ -17,8 +17,8 @@ from models import Message
 def chat_history():
     messages = (
         Message.query
-        .order_by(Message.timestamp.desc())  # ✅ 先取最新的70条（从新到旧）
-        .limit(70)
+        .order_by(Message.timestamp.desc())  # ✅ 先取最新的120条（从新到旧）
+        .limit(120)
         .all()
     )
     messages.reverse()
