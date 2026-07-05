@@ -31,4 +31,4 @@ class Message(db.Model):
     def beijing_time_str(self):
         beijing = pytz.timezone("Asia/Shanghai")
         local_time = self.timestamp.replace(tzinfo=pytz.utc).astimezone(beijing)
-        return local_time.strftime("%H:%M")
+        return local_time.strftime("%m-%d %H:%M")
