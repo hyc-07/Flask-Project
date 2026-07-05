@@ -27,7 +27,7 @@ def chat_history():
         data.append({
             "username": m.user.username,
             "content": m.content,
-            'timestamp': msg.timestamp.isoformat()
+            'timestamp': m.timestamp.isoformat()
         })
 
     return jsonify(data)

@@ -370,22 +370,18 @@
         fetch('/history')
             .then(res => res.json())
             .then(messages => {
-                // 移除加载提示
-                if (loadingIndicator) {
-                    loadingIndicator.remove();
-                }
-                messagesContainer.classList.remove('loading');
-
-                // 添加历史消息
-                messages.forEach(appendMessage);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            })
-            .catch(error => {
-                console.error('加载历史消息失败:', error);
-                if (loadingIndicator) {
-                    loadingIndicator.innerHTML = '<div style="color:#ff4d4f;">加载失败，请刷新重试</div>';
-                }
-                messagesContainer.classList.remove('loading');
+                messages.forEach(data => {
+                    const time = new Date(data.timestamp + 'Z').toLocaleTimeString(
+                        navigator.language,
+                        {
+                            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }
+                    );
+                    appendMessage(data.username, data.content, time);
+                });
+                scrollToBottom();
             });
     });
 
@@ -439,30 +435,19 @@
             onlineUsersList.appendChild(userItem);
         });
     }
-
-    function appendMessage(data) {
+    function appendMessage(username, content, time) {
+        const isSelf = username === currentUsername;
         const div = document.createElement('div');
-        const isSelf = data.username === currentUsername;
         div.className = 'message ' + (isSelf ? 'self' : 'other');
 
         const senderHtml = !isSelf ? `
-            <div class="sender-name">${data.username}</div>
+            <div class="sender-name">${username}</div>
         ` : '';
-
-        // ✅ 前端转本地时间
-        const localTime = new Date(data.timestamp + 'Z').toLocaleTimeString(
-            navigator.language,
-            {
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                hour: '2-digit',
-                minute: '2-digit'
-            }
-        );
 
         div.innerHTML = `
             ${senderHtml}
-            <div class="bubble">${data.content}</div>
-            <div class="time ${isSelf ? 'self-time' : 'other-time'}">${localTime}</div>
+            <div class="bubble">${content}</div>
+            <div class="time ${isSelf ? 'self-time' : 'other-time'}">${time}</div>
         `;
 
         document.getElementById('messages').appendChild(div);
