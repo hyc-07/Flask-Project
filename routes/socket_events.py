@@ -1,37 +1,47 @@
 from flask_socketio import emit
 from flask_login import current_user
-from extensions import db
-from models import Message
+from extensions import db       # ✅ 正确
+from models import User, Message  # ✅ 正确
 
-# ✅ 全局在线用户集合（放在这里最合适）
-online_users = set()
+# ✅ 在线用户（用 id，更稳定）
+online_user_ids = set()
+
 
 def register_socket_events(socketio):
 
     @socketio.on('connect')
     def handle_connect():
         if current_user.is_authenticated:
-            username = current_user.username
-            online_users.add(username)
-            print(f"✅ 用户 {username} 已连接")
-            # ✅ 广播在线用户列表给所有客户端
-            emit('online_users', {'users': list(online_users)}, broadcast=True)
+            online_user_ids.add(current_user.id)
+            print(f"✅ 用户 {current_user.username} 已连接")
+            emit_user_list(socketio)
 
     @socketio.on('disconnect')
     def handle_disconnect():
         if current_user.is_authenticated:
-            username = current_user.username
-            if username in online_users:
-                online_users.remove(username)
-                print(f"❌ 用户 {username} 断开连接")
-                # ✅ 广播在线用户列表给所有客户端
-                emit('online_users', {'users': list(online_users)}, broadcast=True)
+            online_user_ids.discard(current_user.id)
+            print(f"❌ 用户 {current_user.username} 断开连接")
+            emit_user_list(socketio)
 
+    # ✅ 广播【所有用户 + 在线状态】
+    def emit_user_list(socketio):
+        users = User.query.all()
+        data = []
+
+        for u in users:
+            data.append({
+                "id": u.id,
+                "username": u.username,
+                "online": u.id in online_user_ids
+            })
+
+        emit('user_list', {'users': data}, broadcast=True)
+
+    # ✅ 消息发送（保持你原有逻辑）
     @socketio.on('send_message')
     def handle_send_message(data):
         content = data.get('content')
 
-        # 1. 存数据库
         msg = Message(
             user_id=current_user.id,
             content=content
@@ -39,9 +49,8 @@ def register_socket_events(socketio):
         db.session.add(msg)
         db.session.commit()
 
-        # 2. 广播给所有人
         emit('new_message', {
             'username': current_user.username,
             'content': content,
-            "timestamp": msg.beijing_time_str
+            'timestamp': msg.beijing_time_str
         }, broadcast=True)
