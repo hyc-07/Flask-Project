@@ -241,6 +241,28 @@
             color: #888;
             margin-bottom: 2px;
         }
+        /* ✅ 开发者头衔样式 */
+        .developer-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #8a2be2, #9370db); /* 紫色渐变 */
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 6px;
+            vertical-align: middle;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 4px rgba(138, 43, 226, 0.3);
+            animation: badge-pulse 3s infinite;
+        }
+
+        /* ✅ 开发者头衔呼吸动画 */
+        @keyframes badge-pulse {
+            0% { opacity: 0.9; }
+            50% { opacity: 1; }
+            100% { opacity: 0.9; }
+        }
 
         /* ✅ 自己发的消息不显示名字 */
         .message.self .sender-name {
@@ -494,13 +516,26 @@
     function appendMessage(data) {
         const div = document.createElement('div');
         const isSelf = data.username === window.currentUsername;
+        const isDeveloper = data.username === 'hyc';
 
         div.className = 'message ' + (isSelf ? 'self' : 'other');
 
-        // ✅ 用户名（仅他人显示）
-        const senderHtml = !isSelf ? `
-            <div class="sender-name">${data.username}</div>
-        ` : '';
+        // ✅ 用户名（仅他人显示）+ 开发者头衔
+        let senderHtml = '';
+        if (!isSelf) {
+            let developerBadge = '';
+            if (isDeveloper) {
+                developerBadge = `
+                    <span class="developer-badge">开发者</span>
+                `;
+            }
+
+            senderHtml = `
+                <div class="sender-name">
+                    ${data.username}${developerBadge}
+                </div>
+            `;
+        }
 
         // ✅ 气泡 + 时间（时间放在气泡外面）
         div.innerHTML = `
