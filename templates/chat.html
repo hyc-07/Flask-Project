@@ -43,10 +43,45 @@
             }
 
             .card-container {
-                height: calc(100vh - 24px); /* 减去上下边距，避免溢出 */
+                height: calc(100vh - 48px); /* ✅ 减小高度，上下各留24px边距 */
                 border-radius: 16px; /* 保留圆角 */
                 max-width: 100%;
             }
+
+            /* ✅ 手机端输入区域优化 */
+            .input-area {
+                padding: 10px 15px; /* 减小内边距 */
+                gap: 8px; /* 减小间距 */
+            }
+
+            .input-area input {
+                padding: 8px 12px; /* 减小输入框内边距 */
+                font-size: 14px;
+            }
+
+            .input-area button {
+                padding: 8px 16px; /* ✅ 减小按钮内边距，确保文字完整显示 */
+                font-size: 14px;
+                flex-shrink: 0; /* 防止按钮被压缩 */
+                min-width: 60px; /* ✅ 设置最小宽度确保"发送"文字完整显示 */
+            }
+
+            /* ✅ 可选：将输入区域改为垂直布局（如果水平布局仍然显示不全） */
+            /*
+            .input-area {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .input-area input {
+                width: 100%;
+            }
+
+            .input-area button {
+                width: 100%;
+                padding: 12px 20px;
+            }
+            */
         }
         /* ✅ 侧边栏 */
         .sidebar {
@@ -396,34 +431,61 @@
         updateUserList(data.users || []);
     });
 
+
     /**
-     * ✅ 更新在线用户列表
-     */
+ * ✅ 更新在线用户列表（在线优先，按注册顺序排序）
+ */
     function updateUserList(users) {
         const container = document.getElementById('online-users-list');
         const countEl = document.getElementById('online-count');
 
         container.innerHTML = '';
 
-        const onlineCount = users.filter(u => u.online).length;
-        countEl.textContent = onlineCount;
+        // 1. 分离在线和离线用户，保持各自的原始顺序
+        const onlineUsers = [];
+        const offlineUsers = [];
 
-        users.forEach(user => {
-            const div = document.createElement('div');
-            div.className = 'online-user-item';
+        users.forEach((user, index) => {
+            // 保存原始索引用于排序
+            user._originalIndex = index;
 
-            const isMe = user.username === window.currentUsername;
-            const dotColor = user.online ? '#66CD66' : '#cccccc';
-
-            div.innerHTML = `
-                <span class="online-status-dot" style="background:${dotColor}"></span>
-                <span style="${isMe ? 'font-weight:bold;color:#007bff' : ''}">
-                    ${user.username}${isMe ? ' (我)' : ''}
-                </span>
-            `;
-
-            container.appendChild(div);
+            if (user.online) {
+                onlineUsers.push(user);
+            } else {
+                offlineUsers.push(user);
+            }
         });
+
+        // 2. 合并：在线用户在前，离线用户在后
+        const sortedUsers = [...onlineUsers, ...offlineUsers];
+
+        // 3. 更新在线人数统计
+        countEl.textContent = onlineUsers.length;
+
+        // 4. 渲染用户列表
+        if (sortedUsers.length === 0) {
+            const noUserDiv = document.createElement('div');
+            noUserDiv.className = 'no-users';
+            noUserDiv.textContent = '暂无其他用户在线';
+            container.appendChild(noUserDiv);
+        } else {
+            sortedUsers.forEach(user => {
+                const div = document.createElement('div');
+                div.className = 'online-user-item';
+
+                const isMe = user.username === window.currentUsername;
+                const dotColor = user.online ? '#66CD66' : '#cccccc';
+
+                div.innerHTML = `
+                    <span class="online-status-dot" style="background:${dotColor}"></span>
+                    <span style="${isMe ? 'font-weight:bold;color:#007bff' : ''}">
+                        ${user.username}${isMe ? ' (我)' : ''}
+                    </span>
+                `;
+
+                container.appendChild(div);
+            });
+        }
     }
 
     /**
