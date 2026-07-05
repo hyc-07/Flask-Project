@@ -370,18 +370,22 @@
         fetch('/history')
             .then(res => res.json())
             .then(messages => {
-                messages.forEach(data => {
-                    const time = new Date(data.timestamp + 'Z').toLocaleTimeString(
-                        navigator.language,
-                        {
-                            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        }
-                    );
-                    appendMessage(data.username, data.content, time);
-                });
-                scrollToBottom();
+                // 移除加载提示
+                if (loadingIndicator) {
+                    loadingIndicator.remove();
+                }
+                messagesContainer.classList.remove('loading');
+
+                // 添加历史消息
+                messages.forEach(appendMessage);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            })
+            .catch(error => {
+                console.error('加载历史消息失败:', error);
+                if (loadingIndicator) {
+                    loadingIndicator.innerHTML = '<div style="color:#ff4d4f;">加载失败，请刷新重试</div>';
+                }
+                messagesContainer.classList.remove('loading');
             });
     });
 
@@ -435,21 +439,27 @@
             onlineUsersList.appendChild(userItem);
         });
     }
-    function appendMessage(username, content, time) {
-        const isSelf = username === currentUsername;
+
+    /**
+     * ✅ 追加单条消息（时间移到气泡外）
+     */
+    function appendMessage(data) {
         const div = document.createElement('div');
+        const isSelf = data.username === currentUsername;
+
         div.className = 'message ' + (isSelf ? 'self' : 'other');
 
+        // ✅ 用户名（仅他人显示）
         const senderHtml = !isSelf ? `
-            <div class="sender-name">${username}</div>
+            <div class="sender-name">${data.username}</div>
         ` : '';
 
+        // ✅ 气泡 + 时间（时间放在气泡外面）
         div.innerHTML = `
             ${senderHtml}
-            <div class="bubble">${content}</div>
-            <div class="time ${isSelf ? 'self-time' : 'other-time'}">${time}</div>
+            <div class="bubble">${data.content}</div>
+            <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
         `;
-
         document.getElementById('messages').appendChild(div);
     }
 
@@ -477,17 +487,10 @@
     /**
      * ✅ 接收新消息（实时）
      */
-    socket.on('new_message', function(msg) {
-        const time = new Date(msg.timestamp + 'Z').toLocaleTimeString(
-            navigator.language,
-            {
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                hour: '2-digit',
-                minute: '2-digit'
-            }
-        );
-
-        appendMessage(msg.username, msg.content, time);
+    socket.on('new_message', function (data) {
+        appendMessage(data);
+        const box = document.getElementById('messages');
+        box.scrollTop = box.scrollHeight;
     });
 </script>
 
