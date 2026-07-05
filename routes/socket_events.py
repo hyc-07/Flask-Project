@@ -43,5 +43,5 @@ def register_socket_events(socketio):
         emit('new_message', {
             'username': current_user.username,
             'content': content,
-            'timestamp': msg.timestamp.isoformat()
+            'timestamp': msg.timestamp.strftime('%H:%M')
         }, broadcast=True)
