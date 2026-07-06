@@ -37,60 +37,18 @@
             overflow: hidden;
             box-sizing: border-box;
         }
-        @media (max-width: 600px) {
-            body {
-                padding: 24px; /* 留出背景显示空间 */
-            }
-
-            .card-container {
-                height: calc(100vh - 48px); /* ✅ 减小高度，上下各留24px边距 */
-                border-radius: 16px; /* 保留圆角 */
-                max-width: 100%;
-            }
-
-            /* ✅ 手机端输入区域优化 */
-            .input-area {
-                padding: 10px 15px; /* 减小内边距 */
-                gap: 8px; /* 减小间距 */
-            }
-
-            .input-area input {
-                padding: 8px 12px; /* 减小输入框内边距 */
-                font-size: 14px;
-            }
-
-            .input-area button {
-                padding: 8px 16px; /* ✅ 减小按钮内边距，确保文字完整显示 */
-                font-size: 14px;
-                flex-shrink: 0; /* 防止按钮被压缩 */
-                min-width: 60px; /* ✅ 设置最小宽度确保"发送"文字完整显示 */
-            }
-
-            /* ✅ 可选：将输入区域改为垂直布局（如果水平布局仍然显示不全） */
-            /*
-            .input-area {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .input-area input {
-                width: 100%;
-            }
-
-            .input-area button {
-                width: 100%;
-                padding: 12px 20px;
-            }
-            */
-        }
         /* ✅ 侧边栏 */
         .sidebar {
-            width: 240px;
+            width: 240px;              /* 桌面端固定宽度 */
             background: #f8f9fa;
             padding: 20px;
             border-right: 1px solid #e9ecef;
             display: flex;
             flex-direction: column;
+
+            /* ✅ 关键：允许侧边栏缩小，但不要完全消失 */
+            flex-shrink: 1;            /* 允许缩小 */
+            min-width: 150px;          /* 最小宽度，防止缩得太小 */
         }
 
         .sidebar-header {
@@ -170,10 +128,11 @@
 
         /* ✅ 聊天区 */
         .chat-area {
-            flex: 1;
+            flex: 1;                  /* ✅ 关键：占据剩余空间 */
             display: flex;
             flex-direction: column;
             background: #fff;
+            min-width: 0;             /* ✅ 关键：允许内容缩小 */
         }
 
         .messages {
@@ -313,11 +272,14 @@
             border-top: 1px solid #e9ecef;
             background: white;
             gap: 10px;
+
+            /* ✅ 关键：防止输入区域被压缩 */
+            flex-shrink: 0;
         }
 
         .input-area input {
             flex: 1;
-            min-width: 0;
+            min-width: 0;             /* ✅ 允许输入框缩小 */
             padding: 10px 14px;
             border: 1px solid #ddd;
             border-radius: 20px;
@@ -325,12 +287,8 @@
             font-size: 14px;
         }
 
-        .input-area input:focus {
-            border-color: #007bff;
-        }
-
         .input-area button {
-            flex-shrink: 0;
+            flex-shrink: 0;           /* ✅ 关键：按钮绝不缩小 */
             padding: 10px 20px;
             background: #007bff;
             color: white;
@@ -338,7 +296,13 @@
             border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
+            min-width: 60px;          /* ✅ 确保文字完整显示 */
         }
+
+        .input-area input:focus {
+            border-color: #007bff;
+        }
+
 
         .input-area button:hover {
             background: #0056b3;
@@ -361,6 +325,49 @@
         .online-users-section::-webkit-scrollbar-thumb {
             background: #ccc;
             border-radius: 2px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 24px;
+            }
+
+            .card-container {
+                height: calc(100vh - 48px);
+                border-radius: 16px;
+                max-width: 100%;
+                min-width: 0; /* ✅ 允许子元素缩小 */
+            }
+
+            /* ✅ 侧边栏自适应 */
+            .sidebar {
+                min-width: 120px;      /* 手机端最小宽度 */
+                padding: 15px;
+                width: auto;
+            }
+
+            /* ✅ 聊天区域自适应 */
+            .chat-area {
+                min-width: 200px;      /* 确保聊天区域有足够空间 */
+            }
+
+            /* ✅ 输入区域：确保按钮不被挤压 */
+            .input-area {
+                padding: 10px 15px;
+                gap: 8px;
+            }
+
+            .input-area input {
+                padding: 8px 12px;
+                font-size: 14px;
+                min-width: 0;          /* ✅ 允许输入框缩小 */
+            }
+
+            .input-area button {
+                padding: 8px 16px;
+                font-size: 14px;
+                flex-shrink: 0;        /* ✅ 关键：按钮绝不缩小 */
+                min-width: 60px;       /* ✅ 确保文字完整显示 */
+            }
         }
     </style>
 </head>
