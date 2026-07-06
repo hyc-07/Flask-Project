@@ -7,6 +7,8 @@ from routes.chat import chat
 from models import User
 from routes.socket_events import register_socket_events
 
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -37,3 +39,9 @@ def create_app():
     return app, socketio
 
 app, socketio = create_app()
+
+from flask import send_file, current_app
+
+@app.route('/ad62b5942f3e6958bbfc2fa014e309d7.txt')
+def wechat_verify():
+    return send_file(current_app.root_path / 'ad62b5942f3e6958bbfc2fa014e309d7.txt')
