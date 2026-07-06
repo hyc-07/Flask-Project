@@ -40,8 +40,17 @@ def create_app():
 
 app, socketio = create_app()
 
-from flask import send_file, current_app
+import os
+from flask import send_file
 
 @app.route('/ad62b5942f3e6958bbfc2fa014e309d7.txt')
 def wechat_verify():
-    return send_file(current_app.root_path / 'ad62b5942f3e6958bbfc2fa014e309d7.txt')
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, 'ad62b5942f3e6958bbfc2fa014e309d7.txt')
+
+    print("❌DEBUG PATH:", file_path)
+    print("❌EXISTS:", os.path.exists(file_path))
+
+    return send_file(file_path)
+
+
