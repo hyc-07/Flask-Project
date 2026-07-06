@@ -25,6 +25,7 @@
             padding: 40px 20px;
         }
 
+
         /* ✅ 卡片容器 */
         .card-container {
             display: flex;
@@ -507,8 +508,12 @@
 
                 div.innerHTML = `
                     <span class="online-status-dot" style="background:${dotColor}"></span>
-                    <span style="${isMe ? 'font-weight:bold;color:#007bff' : ''}">
-                        ${user.username}${isMe ? ' (我)' : ''}
+                    <a href="/user/${encodeURIComponent(user.username)}">
+                        ${user.username}
+                        ${isMe ? ' (我)' : ''}
+                    </a>
+                    <span style="margin-left:6px;color:#888;font-size:12px;">
+                        ${user.status || ''}
                     </span>
                 `;
 

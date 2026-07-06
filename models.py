@@ -13,6 +13,17 @@ class User(UserMixin, db.Model):
 
     def check_password(self, pwd):
         return check_password_hash(self.password_hash, pwd)
+    # ✅ 新增字段
+    real_name = db.Column(db.String(50))      # 真实姓名
+    bio = db.Column(db.Text)                  # 个人介绍
+    status = db.Column(db.String(20), default='😊 在线')  # 在线状态
+
+    messages = db.relationship('Message', backref='user', lazy=True)
+
+    @property
+    def is_online(self):
+        from socket_events import online_user_ids
+        return self.id in online_user_ids
 
 # models.py
 from datetime import datetime
