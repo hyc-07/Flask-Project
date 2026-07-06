@@ -8,26 +8,20 @@ online_user_ids = set()
 
 
 def register_socket_events(socketio):
+
     @socketio.on('connect')
     def handle_connect():
-        if not current_user.is_authenticated:
-            print("❌ 未登录用户尝试连接")
-            return False
-
-        online_user_ids.add(current_user.id)
-        print(f"✅ 用户 {current_user.username} 已连接")
-
-        emit_user_list(socketio)
+        if current_user.is_authenticated:
+            online_user_ids.add(current_user.id)
+            print(f"✅ 用户 {current_user.username} 已连接")
+            emit_user_list(socketio)
 
     @socketio.on('disconnect')
     def handle_disconnect():
-        if not current_user.is_authenticated:
-            return
-
-        online_user_ids.discard(current_user.id)
-        print(f"❌ 用户 {current_user.username} 断开连接")
-
-        emit_user_list(socketio)
+        if current_user.is_authenticated:
+            online_user_ids.discard(current_user.id)
+            print(f"❌ 用户 {current_user.username} 断开连接")
+            emit_user_list(socketio)
 
     # ✅ 广播【所有用户 + 在线状态】
     def emit_user_list(socketio):
@@ -36,9 +30,9 @@ def register_socket_events(socketio):
 
         for u in users:
             data.append({
+                "id": u.id,
                 "username": u.username,
-                "online": u.id in online_user_ids,
-                "status": u.status  # ✅ 用户设置的“在线状态文案”
+                "online": u.id in online_user_ids
             })
 
         emit('user_list', {'users': data}, broadcast=True)
