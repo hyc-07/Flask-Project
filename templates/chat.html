@@ -585,17 +585,21 @@
 
         container.innerHTML = '';
 
-        // 1. 只为新用户设置 _originalIndex
-        users.forEach((user, index) => {
-            // 如果用户还没有 _originalIndex，则设置
-            if (user._originalIndex === undefined) {
-                user._originalIndex = index;
+        // 1. 分离在线和离线用户
+        const onlineUsers = [];
+        const offlineUsers = [];
+
+        users.forEach((user) => {
+            if (user.online) {
+                onlineUsers.push(user);
+            } else {
+                offlineUsers.push(user);
             }
         });
 
-        // 2. 分离在线和离线用户，保持各自的原始顺序
-        const onlineUsers = users.filter(u => u.online);
-        const offlineUsers = users.filter(u => !u.online);
+        // 2. 按注册顺序（id 升序）分别对在线和离线用户排序
+        onlineUsers.sort((a, b) => a.id - b.id);
+        offlineUsers.sort((a, b) => a.id - b.id);
 
         // 3. 合并：在线用户在前，离线用户在后
         const sortedUsers = [...onlineUsers, ...offlineUsers];
@@ -630,6 +634,7 @@
             });
         }
     }
+
 
 
 
@@ -815,6 +820,13 @@
                 const isMe = currentProfileUser.username === window.currentUsername;
                 updateProfileUIState(isMe, false);
 
+                // 重新获取用户列表以恢复原始顺序
+                fetch('/online_users')
+                    .then(res => res.json())
+                    .then(data => {
+                        updateUserList(data.users);
+                    });
+
                 alert('资料更新成功！');
             } else {
                 alert('更新失败：' + data.message);
@@ -825,6 +837,7 @@
             console.error(err);
         });
     }
+
 
 
 </script>
