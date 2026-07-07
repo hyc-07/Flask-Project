@@ -585,29 +585,22 @@
 
         container.innerHTML = '';
 
-        // 1. 分离在线和离线用户，保持各自的原始顺序
-        const onlineUsers = [];
-        const offlineUsers = [];
-
+        // 1. 先按原始顺序保存用户
         users.forEach((user, index) => {
-            // 保存原始索引用于排序
             user._originalIndex = index;
-
-            if (user.online) {
-                onlineUsers.push(user);
-            } else {
-                offlineUsers.push(user);
-            }
         });
 
-        // 2. 合并：在线用户在前，离线用户在后
-        //const sortedUsers = [...onlineUsers, ...offlineUsers];
-        const sortedUsers = [...onlineUsers, ...offlineUsers].sort((a, b) => a._originalIndex - b._originalIndex);
+        // 2. 分离在线和离线用户，保持各自的原始顺序
+        const onlineUsers = users.filter(u => u.online);
+        const offlineUsers = users.filter(u => !u.online);
 
-        // 3. 更新在线人数统计
+        // 3. 合并：在线用户在前，离线用户在后
+        const sortedUsers = [...onlineUsers, ...offlineUsers];
+
+        // 4. 更新在线人数统计
         countEl.textContent = onlineUsers.length;
 
-        // 4. 渲染用户列表
+        // 5. 渲染用户列表
         if (sortedUsers.length === 0) {
             const noUserDiv = document.createElement('div');
             noUserDiv.className = 'no-users';
@@ -615,10 +608,9 @@
             container.appendChild(noUserDiv);
         } else {
             sortedUsers.forEach(user => {
-                // 改为 a 标签，作为链接指向个人主页
                 const a = document.createElement('a');
                 a.className = 'online-user-item';
-                a.href = "javascript:void(0)"; // 阻止默认跳转，由JS控制
+                a.href = "javascript:void(0)";
 
                 const isMe = user.username === window.currentUsername;
                 const dotColor = user.online ? '#66CD66' : '#cccccc';
@@ -630,14 +622,12 @@
                     </span>
                 `;
 
-                // 点击打开个人主页
                 a.onclick = () => openProfile(user);
-
                 container.appendChild(a);
             });
         }
-
     }
+
 
     /**
      * ✅ 追加单条消息（时间移到气泡外）
