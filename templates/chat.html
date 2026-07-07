@@ -526,6 +526,55 @@
     </div>
 </div>
 
+<div id="announcementModal" class="profile-modal" style="z-index: 1001;">
+    <div class="profile-card">
+        <h2 id="announcementTitle" style="margin-bottom: 0px; font-size: 18px;"></h2>
+        <p id="announcementContent" style="line-height: 1.7; color: #444; margin-bottom: 12px;"></p>
+
+        <!-- 👇 核心：进度条=退出按钮一体化 -->
+        <div id="progressBtn" style="
+            height: 26px;
+            background: #f0f0f0;
+            border-radius: 13px;
+            overflow: hidden;
+            position: relative;
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+        ">
+            <!-- 进度条前景（青绿渐变，和在线状态/发送气泡颜色呼应） -->
+            <div id="progressBar" style="
+                width: 0%;
+                height: 100%;
+                background: linear-gradient(90deg, #1890ff, #69c0ff);
+                border-radius: 13px;
+                transition: width 0.1s linear;
+            "></div>
+            <!-- 加载中文字 -->
+            <span id="countdownText" style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 12px;
+                color: black;
+                pointer-events: none;
+            ">4秒后可退出</span>
+            <!-- 加载完的退出文字（初始隐藏） -->
+            <span id="exitText" style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 13px;
+                color: black;
+                font-weight: 500;
+                pointer-events: none;
+                display: none;
+            ">退出公告</span>
+        </div>
+    </div>
+</div>
+
 <script>
     window.currentUsername = "{{ current_user.username }}";
     const socket = io();
@@ -841,6 +890,76 @@
 
 
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const ANNOUNCEMENT = {
+        id: "2026-07-07-07-07",
+        title: "更新公告",
+        content: [
+            "公告时间:2026-07-07 7:07",
+            '<span style="color: #000; font-weight: 500;">更新内容：</span>',
+            "&nbsp;&nbsp;&nbsp;&nbsp;1.新增个人主页的功能，可通过点击侧边栏的用户列表中的用户来查看🥰",
+            "&nbsp;&nbsp;&nbsp;&nbsp;2.新增公告功能😍",
+            "&nbsp;&nbsp;&nbsp;&nbsp;3.修复了排序不工作的问题🤔",
+            '<span style="color: #000; font-weight: 500;">更新要求：</span>',
+            "&nbsp;&nbsp;&nbsp;&nbsp;1.务必填写您的个人主页，尤其是真实姓名(可用拼音首字母代替)😡",
+            "&nbsp;&nbsp;&nbsp;&nbsp;2.我好无聊😭",
+        ],
+        duration: 6000
+    };
 
+    const storageKey = "announcement_read_" + ANNOUNCEMENT.id;
+    const modal = document.getElementById("announcementModal");
+    const titleEl = document.getElementById("announcementTitle");
+    const contentEl = document.getElementById("announcementContent");
+    const progressBtn = document.getElementById("progressBtn");
+    const progressBar = document.getElementById("progressBar");
+    const countdownText = document.getElementById("countdownText");
+    const exitText = document.getElementById("exitText");
+
+    // 已读直接跳过
+    if (localStorage.getItem(storageKey)) return;
+
+    // 填充内容
+    titleEl.textContent = ANNOUNCEMENT.title;
+    contentEl.innerHTML = ANNOUNCEMENT.content.join('<br>');
+    modal.classList.add("active");
+
+    // 👇 核心逻辑：4秒进度动画，结束后变退出按钮
+    let elapsed = 0;
+    const timer = setInterval(() => {
+        elapsed += 100;
+        const percent = (elapsed / ANNOUNCEMENT.duration) * 100;
+        progressBar.style.width = `${percent}%`;
+
+        // 更新倒计时文字
+        const remaining = Math.ceil((ANNOUNCEMENT.duration - elapsed) / 1000);
+        if (remaining > 0) {
+            countdownText.textContent = `${remaining}秒后可退出`;
+        }
+
+        // 4秒到，进度条变退出按钮
+        if (elapsed >= ANNOUNCEMENT.duration) {
+            clearInterval(timer);
+            // 隐藏倒计时文字，显示退出文字
+            countdownText.style.display = "none";
+            exitText.style.display = "block";
+            // 进度条充满，变成按钮样式
+            progressBar.style.width = "100%";
+            progressBtn.style.cursor = "pointer";
+            progressBtn.style.filter = "brightness(0.95)";
+            // 点击退出
+            progressBtn.onclick = closeAnnouncement;
+        }
+    }, 100);
+
+    // 关闭逻辑
+    function closeAnnouncement() {
+        modal.classList.remove("active");
+        localStorage.setItem(storageKey, "1");
+        clearInterval(timer);
+    }
+});
+</script>
 </body>
 </html>
