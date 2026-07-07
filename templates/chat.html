@@ -428,7 +428,7 @@
         .messages {
             flex: 1;
             padding: 20px;
-            overflow-y: auto;
+            overflow: hidden;
             background: #f1f3f5;
             position: relative;
         }
@@ -899,6 +899,7 @@
                         loadingIndicator.remove();
                     }
                     messagesContainer.classList.remove('loading');
+                    messagesContainer.style.overflow = 'auto';
 
                     // 添加历史消息（带延迟动画）
                     messages.forEach((msg, index) => {
