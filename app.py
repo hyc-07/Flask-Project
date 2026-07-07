@@ -6,7 +6,7 @@ from routes.auth import auth
 from routes.chat import chat
 from models import User
 from routes.socket_events import register_socket_events
-
+from sqlalchemy import text
 
 
 def create_app():
@@ -40,10 +40,10 @@ def create_app():
             columns = [col['name'] for col in inspector.get_columns('user')]
 
             if 'realname' not in columns:
-                db.session.execute('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS realname VARCHAR(80) DEFAULT \'\'')
+                db.session.execute(text('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS realname VARCHAR(80) DEFAULT \'\''))
 
             if 'bio' not in columns:
-                db.session.execute('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS bio VARCHAR(200) DEFAULT \'\'')
+                db.session.execute(text('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS bio VARCHAR(200) DEFAULT \'\''))
 
             db.session.commit()
             print("✅ 数据库自动迁移完成")
