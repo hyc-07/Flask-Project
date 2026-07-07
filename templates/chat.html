@@ -585,9 +585,12 @@
 
         container.innerHTML = '';
 
-        // 1. 先按原始顺序保存用户
+        // 1. 只为新用户设置 _originalIndex
         users.forEach((user, index) => {
-            user._originalIndex = index;
+            // 如果用户还没有 _originalIndex，则设置
+            if (user._originalIndex === undefined) {
+                user._originalIndex = index;
+            }
         });
 
         // 2. 分离在线和离线用户，保持各自的原始顺序
@@ -627,6 +630,7 @@
             });
         }
     }
+
 
 
     /**
