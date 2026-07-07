@@ -601,7 +601,8 @@
         });
 
         // 2. 合并：在线用户在前，离线用户在后
-        const sortedUsers = [...onlineUsers, ...offlineUsers];
+        //const sortedUsers = [...onlineUsers, ...offlineUsers];
+        const sortedUsers = [...onlineUsers, ...offlineUsers].sort((a, b) => a._originalIndex - b._originalIndex);
 
         // 3. 更新在线人数统计
         countEl.textContent = onlineUsers.length;
