@@ -76,6 +76,87 @@
         .sidebar a:hover {
             color: #007bff;
         }
+        /* ✅ 个人主页模态框样式 */
+        .profile-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+
+        .profile-modal.active {
+            display: flex;
+        }
+
+        .profile-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 16px;
+            width: 360px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        .profile-close-btn {
+            position: absolute; top: 12px; right: 16px;
+            background: none; border: none; font-size: 1.5em;
+            cursor: pointer; color: #888;
+        }
+
+        .profile-close-btn:hover { color: #333; }
+
+        .profile-header {
+            display: flex; align-items: center; margin-bottom: 20px;
+            padding-bottom: 15px; border-bottom: 1px solid #e9ecef;
+        }
+
+        .profile-avatar {
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background: #007bff;
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4em; font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .profile-meta h3 { margin: 0 0 4px 0; font-size: 18px; }
+        .profile-meta .status-text { font-size: 12px; display: flex; align-items: center; }
+        .profile-meta .status-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+
+        .profile-field { margin-bottom: 18px; }
+        .profile-label { font-size: 12px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .profile-value {
+            font-size: 14px; padding: 8px 0; color: #333;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .profile-input {
+            width: 100%; padding: 8px 10px; font-size: 14px;
+            border: 1px solid #ddd; border-radius: 8px;
+            outline: none; display: none;
+        }
+
+        .profile-input:focus { border-color: #007bff; }
+
+        .profile-actions { margin-top: 20px; text-align: right; }
+
+        .btn-edit, .btn-save {
+            padding: 6px 16px; border: none; border-radius: 12px;
+            cursor: pointer; font-size: 13px; margin-left: 8px;
+        }
+
+        .btn-edit { background: #e9ecef; color: #333; }
+        .btn-edit:hover { background: #d3d8de; }
+
+        .btn-save { background: #007bff; color: #fff; display: none; }
+        .btn-save:hover { background: #0056b3; }
+
+        .readonly-hint { font-size: 11px; color: #ff4d4f; margin-top: 4px; display: none; }
+
 
         /* ✅ 在线用户列表样式 */
         .online-users-section {
@@ -95,7 +176,7 @@
         .online-user-item {
             display: flex;
             align-items: center;
-            padding: 8px 0;
+            padding: 4px 0;
             font-size: 13px;
             color: #333;
         }
@@ -410,6 +491,40 @@
         </div>
     </div>
 </div>
+<!-- ✅ 个人主页模态框 -->
+<div id="profile-modal" class="profile-modal">
+    <div class="profile-card">
+        <button class="profile-close-btn" onclick="closeProfile()">&times;</button>
+
+        <div class="profile-header">
+            <div class="profile-avatar" id="profile-avatar">U</div>
+            <div class="profile-meta">
+                <h3 id="profile-username">用户名</h3>
+                <div class="status-text">
+                    <span class="status-dot" id="profile-status-dot" style="background:#66CD66"></span>
+                    <span id="profile-status-text">在线</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-field">
+            <div class="profile-label">真实姓名</div>
+            <div class="profile-value" id="profile-realname-display"></div>
+            <input type="text" class="profile-input" id="profile-realname-input" placeholder="请输入真实姓名">
+        </div>
+
+        <div class="profile-field">
+            <div class="profile-label">个人简介</div>
+            <div class="profile-value" id="profile-bio-display"></div>
+            <textarea class="profile-input" id="profile-bio-input" rows="3" placeholder="请输入个人简介" style="resize: vertical;"></textarea>
+        </div>
+
+        <div class="profile-actions">
+            <button class="btn-edit" id="btn-edit" onclick="toggleEdit()">编辑资料</button>
+            <button class="btn-save" id="btn-save" onclick="saveProfile()">保存修改</button>
+        </div>
+    </div>
+</div>
 
 <script>
     window.currentUsername = "{{ current_user.username }}";
@@ -499,22 +614,28 @@
             container.appendChild(noUserDiv);
         } else {
             sortedUsers.forEach(user => {
-                const div = document.createElement('div');
-                div.className = 'online-user-item';
+                // 改为 a 标签，作为链接指向个人主页
+                const a = document.createElement('a');
+                a.className = 'online-user-item';
+                a.href = "javascript:void(0)"; // 阻止默认跳转，由JS控制
 
                 const isMe = user.username === window.currentUsername;
                 const dotColor = user.online ? '#66CD66' : '#cccccc';
 
-                div.innerHTML = `
+                a.innerHTML = `
                     <span class="online-status-dot" style="background:${dotColor}"></span>
                     <span style="${isMe ? 'font-weight:bold;color:#007bff' : ''}">
                         ${user.username}${isMe ? ' (我)' : ''}
                     </span>
                 `;
 
-                container.appendChild(div);
+                // 点击打开个人主页
+                a.onclick = () => openProfile(user);
+
+                container.appendChild(a);
             });
         }
+
     }
 
     /**
@@ -582,6 +703,135 @@
         const box = document.getElementById('messages');
         box.scrollTop = box.scrollHeight;
     });
+        /**
+     * ✅ 个人主页逻辑
+     */
+    let currentProfileUser = null;
+    let isEditing = false;
+
+    function openProfile(user) {
+        currentProfileUser = user;
+        isEditing = false;
+
+        // 渲染基础信息
+        document.getElementById('profile-avatar').innerText = user.username.charAt(0).toUpperCase();
+
+        // 添加开发者头衔
+        const isDeveloper = user.username === 'hyc';
+        let developerBadge = '';
+        if (isDeveloper) {
+            developerBadge = `<span class="developer-badge">开发者</span>`;
+        }
+        document.getElementById('profile-username').innerHTML = user.username + developerBadge;
+
+        // 渲染在线状态（不可编辑）
+        const dotColor = user.online ? '#66CD66' : '#cccccc';
+        const statusText = user.online ? '在线' : '离线';
+        document.getElementById('profile-status-dot').style.background = dotColor;
+        document.getElementById('profile-status-text').innerText = statusText;
+
+        // 渲染可编辑字段
+        const isMe = user.username === window.currentUsername;
+
+        document.getElementById('profile-realname-input').value = user.realname || '';
+        document.getElementById('profile-realname-display').innerText = user.realname || '未设置';
+
+        document.getElementById('profile-bio-input').value = user.bio || '';
+        document.getElementById('profile-bio-display').innerText = user.bio || '这个人很懒，什么都没写';
+
+        updateProfileUIState(isMe, false);
+
+        // 显示模态框
+        document.getElementById('profile-modal').classList.add('active');
+    }
+
+
+    function closeProfile() {
+        document.getElementById('profile-modal').classList.remove('active');
+        currentProfileUser = null;
+    }
+
+    function updateProfileUIState(isMe, editing) {
+        const realnameInput = document.getElementById('profile-realname-input');
+        const bioInput = document.getElementById('profile-bio-input');
+        const realnameDisplay = document.getElementById('profile-realname-display');
+        const bioDisplay = document.getElementById('profile-bio-display');
+        const editBtn = document.getElementById('btn-edit');
+        const saveBtn = document.getElementById('btn-save');
+
+        if (!isMe) {
+            // 他人：隐藏输入框和编辑按钮
+            realnameInput.style.display = 'none';
+            bioInput.style.display = 'none';
+            realnameDisplay.style.display = 'block';
+            bioDisplay.style.display = 'block';
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'none';
+        } else {
+            // 自己
+            if (editing) {
+                realnameInput.style.display = 'block';
+                bioInput.style.display = 'block';
+                realnameDisplay.style.display = 'none';
+                bioDisplay.style.display = 'none';
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline-block';
+            } else {
+                realnameInput.style.display = 'none';
+                bioInput.style.display = 'none';
+                realnameDisplay.style.display = 'block';
+                bioDisplay.style.display = 'block';
+                editBtn.style.display = 'inline-block';
+                saveBtn.style.display = 'none';
+            }
+        }
+    }
+
+    function toggleEdit() {
+        isEditing = true;
+        const isMe = currentProfileUser.username === window.currentUsername;
+        updateProfileUIState(isMe, true);
+    }
+
+    function saveProfile() {
+        const realname = document.getElementById('profile-realname-input').value.trim();
+        const bio = document.getElementById('profile-bio-input').value.trim();
+
+        if (!realname) {
+            alert('真实姓名不能为空！');
+            return;
+        }
+
+        fetch('/update_profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ realname: realname, bio: bio })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                currentProfileUser.realname = realname;
+                currentProfileUser.bio = bio;
+
+                document.getElementById('profile-realname-display').innerText = realname;
+                document.getElementById('profile-bio-display').innerText = bio || '这个人很懒，什么都没写';
+
+                isEditing = false;
+                const isMe = currentProfileUser.username === window.currentUsername;
+                updateProfileUIState(isMe, false);
+
+                alert('资料更新成功！');
+            } else {
+                alert('更新失败：' + data.message);
+            }
+        })
+        .catch(err => {
+            alert('网络错误，请重试');
+            console.error(err);
+        });
+    }
+
+
 </script>
 
 </body>
