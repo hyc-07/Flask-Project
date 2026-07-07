@@ -32,8 +32,11 @@ def register_socket_events(socketio):
             data.append({
                 "id": u.id,
                 "username": u.username,
-                "online": u.id in online_user_ids
+                "online": u.id in online_user_ids,
+                "realname": u.realname if u.realname else "",
+                "bio": u.bio if u.bio else ""
             })
+
 
         emit('user_list', {'users': data}, broadcast=True)
 

@@ -16,7 +16,7 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
 
-    # ✅ 生产环境：让 gunicorn + eventlet 接管
+    # ✅ 生产环境：让 gunicorn + gevent 接管
     socketio = SocketIO(
         app,
         cors_allowed_origins="*",
@@ -35,6 +35,23 @@ def create_app():
         db.create_all()
 
     register_socket_events(socketio)
+
+    try:
+        # 检查列是否存在
+        inspector = db.inspect(db.engine)
+        columns = [col['name'] for col in inspector.get_columns('user')]
+
+        if 'realname' not in columns:
+            db.session.execute('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS realname VARCHAR(80) DEFAULT \'\'')
+
+        if 'bio' not in columns:
+            db.session.execute('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS bio VARCHAR(200) DEFAULT \'\'')
+
+        db.session.commit()
+        print("✅ 数据库自动迁移完成")
+    except Exception as e:
+        db.session.rollback()
+        print(f"❌ 数据库迁移失败: {e}")
 
     return app, socketio
 

@@ -8,6 +8,9 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(50), unique=True)
     password_hash = db.Column(db.String(200))
 
+    realname = db.Column(db.String(80), nullable=True, default='')
+    bio = db.Column(db.String(200), nullable=True, default='')
+
     def set_password(self, pwd):
         self.password_hash = generate_password_hash(pwd)
 
