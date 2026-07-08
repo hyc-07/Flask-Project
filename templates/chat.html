@@ -17,69 +17,15 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #0a0a0a;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 40px 20px;
-            overflow: hidden;
         }
 
-        /* ✅ 高级入场动画背景 */
-        .bg-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0;
-            animation: bgFadeIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .bg-animation::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background:
-                radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(102, 126, 234, 0.1) 0%, transparent 30%);
-            animation: bgPulse 8s ease-in-out infinite alternate;
-        }
-
-        .bg-animation::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            opacity: 0;
-            animation: gradientFade 2s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
-        }
-
-        @keyframes bgFadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-
-        @keyframes gradientFade {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-
-        @keyframes bgPulse {
-            0% { transform: scale(1); opacity: 0.5; }
-            100% { transform: scale(1.1); opacity: 0.8; }
-        }
-
-        /* ✅ 卡片容器 - 高级入场动画 */
+        /* ✅ 卡片容器 */
         .card-container {
             display: flex;
             width: 100%;
@@ -87,90 +33,26 @@
             height: calc(100vh - 230px);
             background: white;
             border-radius: 20px;
-            box-shadow:
-                0 25px 80px rgba(0, 0, 0, 0.3),
-                0 10px 30px rgba(102, 126, 234, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
             overflow: hidden;
             box-sizing: border-box;
-            opacity: 0;
-            transform: translateY(40px) scale(0.95);
-            animation: cardEnter 1s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
-            will-change: transform, opacity;
-            /* ✅ 修复：防止动画期间边缘抖动 */
-            transform-style: preserve-3d;
-            backface-visibility: hidden;
         }
-
-        @keyframes cardEnter {
-            0% {
-                opacity: 0;
-                transform: translateY(40px) scale(0.95);
-                filter: blur(10px);
-            }
-            70% {
-                opacity: 0.8;
-                transform: translateY(-5px) scale(1.01);
-                filter: blur(0);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-                filter: blur(0);
-            }
-        }
-
-        /* ✅ 侧边栏 - 修复双线问题 */
+        /* ✅ 侧边栏 */
         .sidebar {
-            width: 240px;
+            width: 240px;              /* 桌面端固定宽度 */
             background: #f8f9fa;
             padding: 20px;
-            /* ❌ 移除实体边框，避免动画期间双线 */
-            /* border-right: 1px solid #e9ecef; */
+            border-right: 1px solid #e9ecef;
             display: flex;
             flex-direction: column;
-            flex-shrink: 1;
-            min-width: 150px;
-            opacity: 0;
-            animation: sidebarEnter 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.6s forwards;
-            position: relative; /* ✅ 为伪元素定位 */
-        }
 
-        /* ✅ 修复：用伪元素创建分割线，动画结束后才显示 */
-        .sidebar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 1px;
-            height: 100%;
-            background: #e9ecef;
-            opacity: 0;
-            /* ✅ 分割线动画：比卡片晚出现，避免双线 */
-            animation: dividerIn 0.4s ease 2.2s forwards;
-        }
-
-        /* ✅ 分割线入场动画 */
-        @keyframes dividerIn {
-            from {
-                opacity: 0;
-                transform: scaleY(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: scaleY(1);
-            }
-        }
-
-        @keyframes sidebarEnter {
-            0% { opacity: 0; transform: translateX(-20px); }
-            100% { opacity: 1; transform: translateX(0); }
+            /* ✅ 关键：允许侧边栏缩小，但不要完全消失 */
+            flex-shrink: 1;            /* 允许缩小 */
+            min-width: 150px;          /* 最小宽度，防止缩得太小 */
         }
 
         .sidebar-header {
             margin-bottom: 0px;
-            opacity: 0;
-            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.8s forwards;
         }
 
         .sidebar h3 {
@@ -189,14 +71,11 @@
             text-decoration: none;
             font-size: 13px;
             margin-top: 10px;
-            opacity: 0;
-            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 2.2s forwards;
         }
 
         .sidebar a:hover {
             color: #007bff;
         }
-
         /* ✅ 个人主页模态框样式 */
         .profile-modal {
             display: none;
@@ -205,13 +84,10 @@
             background: rgba(0,0,0,0.5);
             justify-content: center; align-items: center;
             z-index: 1000;
-            backdrop-filter: blur(0px);
-            transition: backdrop-filter 0.3s ease;
         }
 
         .profile-modal.active {
             display: flex;
-            animation: modalBackdropFade 0.4s ease forwards;
         }
 
         .profile-card {
@@ -219,44 +95,17 @@
             padding: 30px;
             border-radius: 16px;
             width: 360px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             position: relative;
-            transform: scale(0.9) translateY(20px);
-            opacity: 0;
-            animation: profileCardEnter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-
-        @keyframes profileCardEnter {
-            0% {
-                transform: scale(0.9) translateY(20px);
-                opacity: 0;
-            }
-            70% {
-                transform: scale(1.02) translateY(-5px);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1) translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes modalBackdropFade {
-            0% { backdrop-filter: blur(0px); }
-            100% { backdrop-filter: blur(8px); }
         }
 
         .profile-close-btn {
             position: absolute; top: 12px; right: 16px;
             background: none; border: none; font-size: 1.5em;
             cursor: pointer; color: #888;
-            transition: all 0.2s ease;
         }
 
-        .profile-close-btn:hover {
-            color: #333;
-            transform: rotate(90deg);
-        }
+        .profile-close-btn:hover { color: #333; }
 
         .profile-header {
             display: flex; align-items: center; margin-bottom: 20px;
@@ -271,50 +120,14 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 1.4em; font-weight: bold;
             margin-right: 15px;
-            transform: scale(0);
-            animation: avatarPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
         }
 
-        @keyframes avatarPop {
-            0% { transform: scale(0); }
-            80% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
+        .profile-meta h3 { margin: 0 0 4px 0; font-size: 18px; }
+        .profile-meta .status-text { font-size: 12px; display: flex; align-items: center; }
+        .profile-meta .status-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
 
-        .profile-meta h3 {
-            margin: 0 0 4px 0;
-            font-size: 18px;
-            opacity: 0;
-            animation: fadeInUp 0.4s ease 0.3s forwards;
-        }
-
-        .profile-meta .status-text {
-            font-size: 12px;
-            display: flex; align-items: center;
-            opacity: 0;
-            animation: fadeInUp 0.4s ease 0.4s forwards;
-        }
-
-        .profile-meta .status-dot {
-            width: 8px; height: 8px; border-radius: 50%; margin-right: 6px;
-        }
-
-        .profile-field {
-            margin-bottom: 18px;
-            opacity: 0;
-            animation: fadeInUp 0.4s ease forwards;
-        }
-
-        .profile-field:nth-child(1) { animation-delay: 0.5s; }
-        .profile-field:nth-child(2) { animation-delay: 0.6s; }
-
-        .profile-label {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .profile-field { margin-bottom: 18px; }
+        .profile-label { font-size: 12px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 
         .profile-value {
             font-size: 14px; padding: 8px 0; color: #333;
@@ -329,34 +142,27 @@
 
         .profile-input:focus { border-color: #007bff; }
 
-        .profile-actions {
-            margin-top: 20px;
-            text-align: right;
-            opacity: 0;
-            animation: fadeInUp 0.4s ease 0.7s forwards;
-        }
+        .profile-actions { margin-top: 20px; text-align: right; }
 
         .btn-edit, .btn-save {
             padding: 6px 16px; border: none; border-radius: 12px;
             cursor: pointer; font-size: 13px; margin-left: 8px;
-            transition: all 0.2s ease;
         }
 
-        .btn-edit { background: #e9ecef; color: 333; }
-        .btn-edit:hover { background: #d3d8de; transform: translateY(-1px); }
+        .btn-edit { background: #e9ecef; color: #333; }
+        .btn-edit:hover { background: #d3d8de; }
 
         .btn-save { background: #007bff; color: #fff; display: none; }
-        .btn-save:hover { background: #0056b3; transform: translateY(-1px); }
+        .btn-save:hover { background: #0056b3; }
 
         .readonly-hint { font-size: 11px; color: #ff4d4f; margin-top: 4px; display: none; }
+
 
         /* ✅ 在线用户列表样式 */
         .online-users-section {
             flex: 1;
             margin-top: 20px;
             overflow-y: auto;
-            opacity: 0;
-            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 2s forwards;
         }
 
         .online-users-title {
@@ -373,15 +179,7 @@
             padding: 4px 0;
             font-size: 13px;
             color: #333;
-            opacity: 0;
-            animation: fadeInUp 0.4s ease forwards;
         }
-
-        .online-user-item:nth-child(1) { animation-delay: 2.1s; }
-        .online-user-item:nth-child(2) { animation-delay: 2.15s; }
-        .online-user-item:nth-child(3) { animation-delay: 2.2s; }
-        .online-user-item:nth-child(4) { animation-delay: 2.25s; }
-        .online-user-item:nth-child(5) { animation-delay: 2.3s; }
 
         .online-status-dot {
             width: 8px;
@@ -393,9 +191,9 @@
         }
 
         @keyframes pulse {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.1); }
-            100% { opacity: 1; transform: scale(1); }
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
 
         .current-user {
@@ -411,41 +209,34 @@
 
         /* ✅ 聊天区 */
         .chat-area {
-            flex: 1;
+            flex: 1;                  /* ✅ 关键：占据剩余空间 */
             display: flex;
             flex-direction: column;
             background: #fff;
-            min-width: 0;
-            opacity: 0;
-            animation: chatAreaEnter 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.4s forwards;
-        }
-
-        @keyframes chatAreaEnter {
-            0% { opacity: 0; transform: translateX(20px); }
-            100% { opacity: 1; transform: translateX(0); }
+            min-width: 0;             /* ✅ 关键：允许内容缩小 */
         }
 
         .messages {
             flex: 1;
             padding: 20px;
-            overflow: hidden;
+            overflow-y: auto;
             background: #f1f3f5;
             position: relative;
         }
 
         /* ✅ 加载动画样式 */
         .loading-indicator {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: absolute; /* ✅ 绝对定位 */
+            top: 50%; /* ✅ 垂直居中 */
+            left: 50%; /* ✅ 水平居中 */
+            transform: translate(-50%, -50%); /* ✅ 精确居中 */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             color: #666;
             font-size: 14px;
-            z-index: 10;
+            z-index: 10; /* ✅ 确保在最上层 */
         }
 
         .loading-spinner {
@@ -465,7 +256,6 @@
 
         .messages.loading {
             opacity: 0.7;
-            overflow: hidden;
         }
 
         /* ✅ 消息容器：垂直排列 */
@@ -473,13 +263,6 @@
             margin-bottom: 14px;
             display: flex;
             flex-direction: column;
-            opacity: 0;
-            animation: messageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes messageEnter {
-            0% { opacity: 0; transform: translateY(10px); }
-            100% { opacity: 1; transform: translateY(0); }
         }
 
         /* ✅ 自己发的：右对齐 */
@@ -498,11 +281,10 @@
             color: #888;
             margin-bottom: 2px;
         }
-
         /* ✅ 开发者头衔样式 */
         .developer-badge {
             display: inline-block;
-            background: linear-gradient(135deg, #8a2be2, #9370db);
+            background: linear-gradient(135deg, #8a2be2, #9370db); /* 紫色渐变 */
             color: white;
             font-size: 9px;
             font-weight: bold;
@@ -515,6 +297,7 @@
             animation: badge-pulse 3s infinite;
         }
 
+        /* ✅ 开发者头衔呼吸动画 */
         @keyframes badge-pulse {
             0% { opacity: 0.9; }
             50% { opacity: 1; }
@@ -535,14 +318,6 @@
             line-height: 1.3;
             word-break: break-word;
             text-align: left;
-            transform: scale(0.95);
-            animation: bubblePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-
-        @keyframes bubblePop {
-            0% { transform: scale(0.95); }
-            70% { transform: scale(1.02); }
-            100% { transform: scale(1); }
         }
 
         .self .bubble {
@@ -578,29 +353,23 @@
             border-top: 1px solid #e9ecef;
             background: white;
             gap: 10px;
+
+            /* ✅ 关键：防止输入区域被压缩 */
             flex-shrink: 0;
-            opacity: 0;
-            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.8s forwards;
         }
 
         .input-area input {
             flex: 1;
-            min-width: 0;
+            min-width: 0;             /* ✅ 允许输入框缩小 */
             padding: 10px 14px;
             border: 1px solid #ddd;
             border-radius: 20px;
             outline: none;
             font-size: 14px;
-            transition: all 0.2s ease;
-        }
-
-        .input-area input:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         }
 
         .input-area button {
-            flex-shrink: 0;
+            flex-shrink: 0;           /* ✅ 关键：按钮绝不缩小 */
             padding: 10px 20px;
             background: #007bff;
             color: white;
@@ -608,14 +377,16 @@
             border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
-            min-width: 60px;
-            transition: all 0.2s ease;
+            min-width: 60px;          /* ✅ 确保文字完整显示 */
         }
+
+        .input-area input:focus {
+            border-color: #007bff;
+        }
+
 
         .input-area button:hover {
             background: #0056b3;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
         }
 
         /* ✅ 滚动条美化 */
@@ -636,78 +407,6 @@
             background: #ccc;
             border-radius: 2px;
         }
-
-        /* ✅ 公告模态框 - iOS风格高级动画 */
-        #announcementModal {
-            z-index: 1001;
-            backdrop-filter: blur(0px);
-            transition: backdrop-filter 0.4s ease;
-        }
-
-        #announcementModal.active {
-            animation: announcementBackdropFade 0.4s ease forwards;
-        }
-
-        #announcementModal .profile-card {
-            transform: scale(0.85) translateY(30px);
-            opacity: 0;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
-            animation: announcementCardEnter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s forwards;
-        }
-
-        @keyframes announcementCardEnter {
-            0% {
-                transform: scale(0.85) translateY(30px);
-                opacity: 0;
-            }
-            70% {
-                transform: scale(1.02) translateY(-5px);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1) translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes announcementBackdropFade {
-            0% { backdrop-filter: blur(0px); }
-            100% { backdrop-filter: blur(10px); }
-        }
-
-        #announcementModal h2 {
-            opacity: 0;
-            animation: fadeInUp 0.4s ease 0.3s forwards;
-        }
-
-        #announcementModal #announcementContent {
-            opacity: 0;
-            animation: fadeInUp 0.4s ease 0.4s forwards;
-        }
-
-        #announcementModal #progressBtn {
-            opacity: 0;
-            animation: fadeInUp 0.4s ease 0.5s forwards;
-            transform-origin: center;
-            transition: all 0.2s ease;
-        }
-
-        #announcementModal #progressBtn:hover:not([style*="cursor: not-allowed"]) {
-            transform: scale(1.02);
-            box-shadow: 0 4px 15px rgba(24, 144, 255, 0.3);
-        }
-
-        @keyframes fadeInUp {
-            0% {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         @media (max-width: 600px) {
             body {
                 padding: 24px;
@@ -717,19 +416,22 @@
                 height: calc(100vh - 48px);
                 border-radius: 16px;
                 max-width: 100%;
-                min-width: 0;
+                min-width: 0; /* ✅ 允许子元素缩小 */
             }
 
+            /* ✅ 侧边栏自适应 */
             .sidebar {
-                min-width: 120px;
+                min-width: 120px;      /* 手机端最小宽度 */
                 padding: 15px;
                 width: auto;
             }
 
+            /* ✅ 聊天区域自适应 */
             .chat-area {
-                min-width: 200px;
+                min-width: 200px;      /* 确保聊天区域有足够空间 */
             }
 
+            /* ✅ 输入区域：确保按钮不被挤压 */
             .input-area {
                 padding: 10px 15px;
                 gap: 8px;
@@ -738,535 +440,526 @@
             .input-area input {
                 padding: 8px 12px;
                 font-size: 14px;
-                min-width: 0;
+                min-width: 0;          /* ✅ 允许输入框缩小 */
             }
 
             .input-area button {
                 padding: 8px 16px;
                 font-size: 14px;
-                flex-shrink: 0;
-                min-width: 60px;
+                flex-shrink: 0;        /* ✅ 关键：按钮绝不缩小 */
+                min-width: 60px;       /* ✅ 确保文字完整显示 */
             }
         }
     </style>
 </head>
 <body>
-    <!-- ✅ 高级背景动画层 -->
-    <div class="bg-animation"></div>
 
-    <!-- ✅ 卡片容器 -->
-    <div class="card-container">
-        <!-- 左侧边栏 -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h3>{{ current_user.username }}</h3>
-                <p>在线</p>
-            </div>
-
-            <!-- ✅ 在线用户列表 -->
-            <div class="online-users-section">
-                <div class="online-users-title">在线用户 (<span id="online-count">0</span>)</div>
-                <div id="online-users-list">
-                    <div class="no-users">暂无其他用户在线</div>
-                </div>
-            </div>
-
-            <a href="/logout">退出登录</a>
+<!-- ✅ 卡片容器 -->
+<div class="card-container">
+    <!-- 左侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>{{ current_user.username }}</h3>
+            <p>在线</p>
         </div>
 
-        <!-- 右侧聊天区 -->
-        <div class="chat-area">
-            <div class="messages" id="messages">
-                <!-- ✅ 加载提示 -->
-                <div id="loading-indicator" class="loading-indicator">
-                    <div class="loading-spinner"></div>
-                    <span>正在加载消息...</span>
-                </div>
-            </div>
-
-            <div class="input-area">
-                <input id="msg_input" placeholder="输入消息..." autocomplete="off">
-                <button onclick="sendMsg()">发送</button>
+        <!-- ✅ 在线用户列表 -->
+        <div class="online-users-section">
+            <div class="online-users-title">在线用户 (<span id="online-count">0</span>)</div>
+            <div id="online-users-list">
+                <!-- 在线用户将动态添加到这里 -->
+                <div class="no-users">暂无其他用户在线</div>
             </div>
         </div>
+
+        <a href="/logout">退出登录</a>
     </div>
 
-    <!-- ✅ 个人主页模态框 -->
-    <div id="profile-modal" class="profile-modal">
-        <div class="profile-card">
-            <button class="profile-close-btn" onclick="closeProfile()">&times;</button>
-
-            <div class="profile-header">
-                <div class="profile-avatar" id="profile-avatar">U</div>
-                <div class="profile-meta">
-                    <h3 id="profile-username">用户名</h3>
-                    <div class="status-text">
-                        <span class="status-dot" id="profile-status-dot" style="background:#66CD66"></span>
-                        <span id="profile-status-text">在线</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="profile-field">
-                <div class="profile-label">真实姓名</div>
-                <div class="profile-value" id="profile-realname-display"></div>
-                <input type="text" class="profile-input" id="profile-realname-input" placeholder="请输入真实姓名">
-            </div>
-
-            <div class="profile-field">
-                <div class="profile-label">个人简介</div>
-                <div class="profile-value" id="profile-bio-display"></div>
-                <textarea class="profile-input" id="profile-bio-input" rows="3" placeholder="请输入个人简介" style="resize: vertical;"></textarea>
-            </div>
-
-            <div class="profile-actions">
-                <button class="btn-edit" id="btn-edit" onclick="toggleEdit()">编辑资料</button>
-                <button class="btn-save" id="btn-save" onclick="saveProfile()">保存修改</button>
+    <!-- 右侧聊天区 -->
+    <div class="chat-area">
+        <div class="messages" id="messages">
+            <!-- ✅ 加载提示 -->
+            <div id="loading-indicator" class="loading-indicator">
+                <div class="loading-spinner"></div>
+                <span>正在加载消息...</span>
             </div>
         </div>
+
+        <div class="input-area">
+            <input id="msg_input" placeholder="输入消息..." autocomplete="off">
+            <button onclick="sendMsg()">发送</button>
+        </div>
     </div>
+</div>
+<!-- ✅ 个人主页模态框 -->
+<div id="profile-modal" class="profile-modal">
+    <div class="profile-card">
+        <button class="profile-close-btn" onclick="closeProfile()">&times;</button>
 
-    <!-- ✅ 公告模态框 - iOS风格弹出 -->
-    <div id="announcementModal" class="profile-modal">
-        <div class="profile-card">
-            <h2 id="announcementTitle" style="margin-bottom: 0px; font-size: 18px;"></h2>
-            <p id="announcementContent" style="line-height: 1.7; color: #444; margin-bottom: 12px;"></p>
+        <div class="profile-header">
+            <div class="profile-avatar" id="profile-avatar">U</div>
+            <div class="profile-meta">
+                <h3 id="profile-username">用户名</h3>
+                <div class="status-text">
+                    <span class="status-dot" id="profile-status-dot" style="background:#66CD66"></span>
+                    <span id="profile-status-text">在线</span>
+                </div>
+            </div>
+        </div>
 
-            <!-- 👇 进度条=退出按钮一体化 -->
-            <div id="progressBtn" style="
-                height: 26px;
-                background: #f0f0f0;
+        <div class="profile-field">
+            <div class="profile-label">真实姓名</div>
+            <div class="profile-value" id="profile-realname-display"></div>
+            <input type="text" class="profile-input" id="profile-realname-input" placeholder="请输入真实姓名">
+        </div>
+
+        <div class="profile-field">
+            <div class="profile-label">个人简介</div>
+            <div class="profile-value" id="profile-bio-display"></div>
+            <textarea class="profile-input" id="profile-bio-input" rows="3" placeholder="请输入个人简介" style="resize: vertical;"></textarea>
+        </div>
+
+        <div class="profile-actions">
+            <button class="btn-edit" id="btn-edit" onclick="toggleEdit()">编辑资料</button>
+            <button class="btn-save" id="btn-save" onclick="saveProfile()">保存修改</button>
+        </div>
+    </div>
+</div>
+
+<div id="announcementModal" class="profile-modal" style="z-index: 1001;">
+    <div class="profile-card">
+        <h2 id="announcementTitle" style="margin-bottom: 0px; font-size: 18px;"></h2>
+        <p id="announcementContent" style="line-height: 1.7; color: #444; margin-bottom: 12px;"></p>
+
+        <!-- 👇 核心：进度条=退出按钮一体化 -->
+        <div id="progressBtn" style="
+            height: 26px;
+            background: #f0f0f0;
+            border-radius: 13px;
+            overflow: hidden;
+            position: relative;
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+        ">
+            <!-- 进度条前景（青绿渐变，和在线状态/发送气泡颜色呼应） -->
+            <div id="progressBar" style="
+                width: 0%;
+                height: 100%;
+                background: linear-gradient(90deg, #1890ff, #69c0ff);
                 border-radius: 13px;
-                overflow: hidden;
-                position: relative;
-                cursor: not-allowed;
-                transition: all 0.3s ease;
-            ">
-                <!-- 进度条前景（青绿渐变，和在线状态/发送气泡颜色呼应） -->
-                <div id="progressBar" style="
-                    width: 0%;
-                    height: 100%;
-                    background: linear-gradient(90deg, #1890ff, #69c0ff);
-                    border-radius: 13px;
-                    transition: width 0.1s linear;
-                "></div>
-                <!-- 加载中文字 -->
-                <span id="countdownText" style="
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    font-size: 12px;
-                    color: black;
-                    pointer-events: none;
-                ">4秒后可退出</span>
-                <!-- 加载完的退出文字（初始隐藏） -->
-                <span id="exitText" style="
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    font-size: 13px;
-                    color: black;
-                    font-weight: 500;
-                    pointer-events: none;
-                    display: none;
-                ">退出公告</span>
-            </div>
+                transition: width 0.1s linear;
+            "></div>
+            <!-- 加载中文字 -->
+            <span id="countdownText" style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 12px;
+                color: black;
+                pointer-events: none;
+            ">4秒后可退出</span>
+            <!-- 加载完的退出文字（初始隐藏） -->
+            <span id="exitText" style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 13px;
+                color: black;
+                font-weight: 500;
+                pointer-events: none;
+                display: none;
+            ">退出公告</span>
         </div>
     </div>
+</div>
 
-    <script>
-        window.currentUsername = "{{ current_user.username }}";
-        const socket = io();
+<script>
+    window.currentUsername = "{{ current_user.username }}";
+    const socket = io();
 
-        /**
-         * ✅ 页面加载时拉取历史消息
-         */
-        socket.on('connect', () => {
-            console.log('✅ Socket 连接成功');
+    /**
+     * ✅ 页面加载时拉取历史消息
+     */
+    socket.on('connect', () => {
+        console.log('✅ Socket 连接成功');
 
-            const messagesContainer = document.getElementById('messages');
-            const loadingIndicator = document.getElementById('loading-indicator');
+        const messagesContainer = document.getElementById('messages');
+        const loadingIndicator = document.getElementById('loading-indicator');
 
-            // 开始加载
-            messagesContainer.classList.add('loading');
+        // 开始加载
+        messagesContainer.classList.add('loading');
 
-            fetch('/history')
-                .then(res => res.json())
-                .then(messages => {
-                    // 移除加载提示
-                    if (loadingIndicator) {
-                        loadingIndicator.remove();
-                    }
-                    messagesContainer.classList.remove('loading');
-                    messagesContainer.style.overflow = 'auto';
-
-                    // 添加历史消息（带延迟动画）
-                    messages.forEach((msg, index) => {
-                        setTimeout(() => {
-                            appendMessage(msg);
-                        }, index * 50);
-                    });
-
-                    setTimeout(() => {
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                    }, messages.length * 50 + 100);
-                })
-                .catch(error => {
-                    console.error('加载历史消息失败:', error);
-                    if (loadingIndicator) {
-                        loadingIndicator.innerHTML = '<div style="color:#ff4d4f;">加载失败，请刷新重试</div>';
-                    }
-                    messagesContainer.classList.remove('loading');
-                });
-        });
-
-        socket.on('connect_error', (err) => {
-            console.error('❌ Socket 连接失败:', err);
-        });
-
-        /**
-         * ✅ 接收在线用户列表
-         */
-        socket.on('user_list', function (data) {
-            updateUserList(data.users || []);
-        });
-
-        /**
-         * ✅ 更新在线用户列表（在线优先，按注册顺序排序）
-         */
-        function updateUserList(users) {
-            const container = document.getElementById('online-users-list');
-            const countEl = document.getElementById('online-count');
-
-            container.innerHTML = '';
-
-            // 1. 分离在线和离线用户
-            const onlineUsers = [];
-            const offlineUsers = [];
-
-            users.forEach((user) => {
-                if (user.online) {
-                    onlineUsers.push(user);
-                } else {
-                    offlineUsers.push(user);
+        fetch('/history')
+            .then(res => res.json())
+            .then(messages => {
+                // 移除加载提示
+                if (loadingIndicator) {
+                    loadingIndicator.remove();
                 }
+                messagesContainer.classList.remove('loading');
+
+                // 添加历史消息
+                messages.forEach(appendMessage);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            })
+            .catch(error => {
+                console.error('加载历史消息失败:', error);
+                if (loadingIndicator) {
+                    loadingIndicator.innerHTML = '<div style="color:#ff4d4f;">加载失败，请刷新重试</div>';
+                }
+                messagesContainer.classList.remove('loading');
             });
+    });
 
-            // 2. 按注册顺序（id 升序）分别对在线和离线用户排序
-            onlineUsers.sort((a, b) => a.id - b.id);
-            offlineUsers.sort((a, b) => a.id - b.id);
+    socket.on('connect_error', (err) => {
+        console.error('❌ Socket 连接失败:', err);
+    });
 
-            // 3. 合并：在线用户在前，离线用户在后
-            const sortedUsers = [...onlineUsers, ...offlineUsers];
+    /**
+     * ✅ 接收在线用户列表
+     */
+    socket.on('user_list', function (data) {
+        updateUserList(data.users || []);
+    });
 
-            // 4. 更新在线人数统计
-            countEl.textContent = onlineUsers.length;
 
-            // 5. 渲染用户列表
-            if (sortedUsers.length === 0) {
-                const noUserDiv = document.createElement('div');
-                noUserDiv.className = 'no-users';
-                noUserDiv.textContent = '暂无其他用户在线';
-                container.appendChild(noUserDiv);
+    /**
+ * ✅ 更新在线用户列表（在线优先，按注册顺序排序）
+ */
+    function updateUserList(users) {
+        const container = document.getElementById('online-users-list');
+        const countEl = document.getElementById('online-count');
+
+        container.innerHTML = '';
+
+        // 1. 分离在线和离线用户
+        const onlineUsers = [];
+        const offlineUsers = [];
+
+        users.forEach((user) => {
+            if (user.online) {
+                onlineUsers.push(user);
             } else {
-                sortedUsers.forEach((user, index) => {
-                    const a = document.createElement('a');
-                    a.className = 'online-user-item';
-                    a.href = "javascript:void(0)";
-
-                    const isMe = user.username === window.currentUsername;
-                    const dotColor = user.online ? '#66CD66' : '#cccccc';
-
-                    a.innerHTML = `
-                        <span class="online-status-dot" style="background:${dotColor}"></span>
-                        <span style="${isMe ? 'font-weight:bold;color:#007bff' : ''}">
-                            ${user.username}${isMe ? ' (我)' : ''}
-                        </span>
-                    `;
-
-                    a.onclick = () => openProfile(user);
-
-                    // 重置动画延迟
-                    a.style.animationDelay = `${2.1 + (index * 0.05)}s`;
-                    container.appendChild(a);
-                });
+                offlineUsers.push(user);
             }
+        });
+
+        // 2. 按注册顺序（id 升序）分别对在线和离线用户排序
+        onlineUsers.sort((a, b) => a.id - b.id);
+        offlineUsers.sort((a, b) => a.id - b.id);
+
+        // 3. 合并：在线用户在前，离线用户在后
+        const sortedUsers = [...onlineUsers, ...offlineUsers];
+
+        // 4. 更新在线人数统计
+        countEl.textContent = onlineUsers.length;
+
+        // 5. 渲染用户列表
+        if (sortedUsers.length === 0) {
+            const noUserDiv = document.createElement('div');
+            noUserDiv.className = 'no-users';
+            noUserDiv.textContent = '暂无其他用户在线';
+            container.appendChild(noUserDiv);
+        } else {
+            sortedUsers.forEach(user => {
+                const a = document.createElement('a');
+                a.className = 'online-user-item';
+                a.href = "javascript:void(0)";
+
+                const isMe = user.username === window.currentUsername;
+                const dotColor = user.online ? '#66CD66' : '#cccccc';
+
+                a.innerHTML = `
+                    <span class="online-status-dot" style="background:${dotColor}"></span>
+                    <span style="${isMe ? 'font-weight:bold;color:#007bff' : ''}">
+                        ${user.username}${isMe ? ' (我)' : ''}
+                    </span>
+                `;
+
+                a.onclick = () => openProfile(user);
+                container.appendChild(a);
+            });
         }
+    }
 
-        /**
-         * ✅ 追加单条消息（时间移到气泡外）
-         */
-        function appendMessage(data) {
-            const div = document.createElement('div');
-            const isSelf = data.username === window.currentUsername;
-            const isDeveloper = data.username === 'hyc';
 
-            div.className = 'message ' + (isSelf ? 'self' : 'other');
 
-            // ✅ 用户名（仅他人显示）+ 开发者头衔
-            let senderHtml = '';
-            if (!isSelf) {
-                let developerBadge = '';
-                if (isDeveloper) {
-                    developerBadge = `
-                        <span class="developer-badge">开发者</span>
-                    `;
-                }
 
-                senderHtml = `
-                    <div class="sender-name">
-                        ${data.username}${developerBadge}
-                    </div>
+    /**
+     * ✅ 追加单条消息（时间移到气泡外）
+     */
+    function appendMessage(data) {
+        const div = document.createElement('div');
+        const isSelf = data.username === window.currentUsername;
+        const isDeveloper = data.username === 'hyc';
+
+        div.className = 'message ' + (isSelf ? 'self' : 'other');
+
+        // ✅ 用户名（仅他人显示）+ 开发者头衔
+        let senderHtml = '';
+        if (!isSelf) {
+            let developerBadge = '';
+            if (isDeveloper) {
+                developerBadge = `
+                    <span class="developer-badge">开发者</span>
                 `;
             }
 
-            // ✅ 气泡 + 时间（时间放在气泡外面）
-            div.innerHTML = `
-                ${senderHtml}
-                <div class="bubble">${data.content}</div>
-                <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
+            senderHtml = `
+                <div class="sender-name">
+                    ${data.username}${developerBadge}
+                </div>
             `;
-            document.getElementById('messages').appendChild(div);
         }
 
+        // ✅ 气泡 + 时间（时间放在气泡外面）
+        div.innerHTML = `
+            ${senderHtml}
+            <div class="bubble">${data.content}</div>
+            <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
+        `;
+        document.getElementById('messages').appendChild(div);
+    }
+
+    /**
+     * ✅ 发送消息
+     */
+    function sendMsg() {
+        const input = document.getElementById('msg_input');
+        const content = input.value.trim();
+        if (!content) return;
+
+        socket.emit('send_message', { content });
+        input.value = '';
+    }
+
+    const msgInput = document.getElementById('msg_input');
+    msgInput.addEventListener('keydown', function(event) {
+        // 手机端 keyCode 13 = Enter 键（兼容 iOS/Android 主流浏览器）
+        if (event.keyCode === 13 && !event.shiftKey) {
+            event.preventDefault(); // 阻止手机端默认换行行为
+            sendMsg();
+        }
+    });
+
+    /**
+     * ✅ 接收新消息（实时）
+     */
+    socket.on('new_message', function (data) {
+        appendMessage(data);
+        const box = document.getElementById('messages');
+        box.scrollTop = box.scrollHeight;
+    });
         /**
-         * ✅ 发送消息
-         */
-        function sendMsg() {
-            const input = document.getElementById('msg_input');
-            const content = input.value.trim();
-            if (!content) return;
+     * ✅ 个人主页逻辑
+     */
+    let currentProfileUser = null;
+    let isEditing = false;
 
-            socket.emit('send_message', { content });
-            input.value = '';
+    function openProfile(user) {
+        currentProfileUser = user;
+        isEditing = false;
+
+        // 渲染基础信息
+        document.getElementById('profile-avatar').innerText = user.username.charAt(0).toUpperCase();
+
+        // 添加开发者头衔
+        const isDeveloper = user.username === 'hyc';
+        let developerBadge = '';
+        if (isDeveloper) {
+            developerBadge = `<span class="developer-badge">开发者</span>`;
         }
+        document.getElementById('profile-username').innerHTML = user.username + developerBadge;
 
-        const msgInput = document.getElementById('msg_input');
-        msgInput.addEventListener('keydown', function(event) {
-            if (event.keyCode === 13 && !event.shiftKey) {
-                event.preventDefault();
-                sendMsg();
-            }
-        });
+        // 渲染在线状态（不可编辑）
+        const dotColor = user.online ? '#66CD66' : '#cccccc';
+        const statusText = user.online ? '在线' : '离线';
+        document.getElementById('profile-status-dot').style.background = dotColor;
+        document.getElementById('profile-status-text').innerText = statusText;
 
-        /**
-         * ✅ 个人主页逻辑
-         */
-        let currentProfileUser = null;
-        let isEditing = false;
+        // 渲染可编辑字段
+        const isMe = user.username === window.currentUsername;
 
-        function openProfile(user) {
-            currentProfileUser = user;
-            isEditing = false;
+        document.getElementById('profile-realname-input').value = user.realname || '';
+        document.getElementById('profile-realname-display').innerText = user.realname || '未设置';
 
-            // 渲染基础信息
-            document.getElementById('profile-avatar').innerText = user.username.charAt(0).toUpperCase();
+        document.getElementById('profile-bio-input').value = user.bio || '';
+        document.getElementById('profile-bio-display').innerText = user.bio || '这个人很懒，什么都没写';
 
-            // 添加开发者头衔
-            const isDeveloper = user.username === 'hyc';
-            let developerBadge = '';
-            if (isDeveloper) {
-                developerBadge = `<span class="developer-badge">开发者</span>`;
-            }
-            document.getElementById('profile-username').innerHTML = user.username + developerBadge;
+        updateProfileUIState(isMe, false);
 
-            // 渲染在线状态（不可编辑）
-            const dotColor = user.online ? '#66CD66' : '#cccccc';
-            const statusText = user.online ? '在线' : '离线';
-            document.getElementById('profile-status-dot').style.background = dotColor;
-            document.getElementById('profile-status-text').innerText = statusText;
+        // 显示模态框
+        document.getElementById('profile-modal').classList.add('active');
+    }
 
-            // 渲染可编辑字段
-            const isMe = user.username === window.currentUsername;
 
-            document.getElementById('profile-realname-input').value = user.realname || '';
-            document.getElementById('profile-realname-display').innerText = user.realname || '未设置';
+    function closeProfile() {
+        document.getElementById('profile-modal').classList.remove('active');
+        currentProfileUser = null;
+    }
 
-            document.getElementById('profile-bio-input').value = user.bio || '';
-            document.getElementById('profile-bio-display').innerText = user.bio || '这个人很懒，什么都没写';
+    function updateProfileUIState(isMe, editing) {
+        const realnameInput = document.getElementById('profile-realname-input');
+        const bioInput = document.getElementById('profile-bio-input');
+        const realnameDisplay = document.getElementById('profile-realname-display');
+        const bioDisplay = document.getElementById('profile-bio-display');
+        const editBtn = document.getElementById('btn-edit');
+        const saveBtn = document.getElementById('btn-save');
 
-            updateProfileUIState(isMe, false);
-
-            // 显示模态框
-            document.getElementById('profile-modal').classList.add('active');
-        }
-
-        function closeProfile() {
-            document.getElementById('profile-modal').classList.remove('active');
-            currentProfileUser = null;
-        }
-
-        function updateProfileUIState(isMe, editing) {
-            const realnameInput = document.getElementById('profile-realname-input');
-            const bioInput = document.getElementById('profile-bio-input');
-            const realnameDisplay = document.getElementById('profile-realname-display');
-            const bioDisplay = document.getElementById('profile-bio-display');
-            const editBtn = document.getElementById('btn-edit');
-            const saveBtn = document.getElementById('btn-save');
-
-            if (!isMe) {
+        if (!isMe) {
+            // 他人：隐藏输入框和编辑按钮
+            realnameInput.style.display = 'none';
+            bioInput.style.display = 'none';
+            realnameDisplay.style.display = 'block';
+            bioDisplay.style.display = 'block';
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'none';
+        } else {
+            // 自己
+            if (editing) {
+                realnameInput.style.display = 'block';
+                bioInput.style.display = 'block';
+                realnameDisplay.style.display = 'none';
+                bioDisplay.style.display = 'none';
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline-block';
+            } else {
                 realnameInput.style.display = 'none';
                 bioInput.style.display = 'none';
                 realnameDisplay.style.display = 'block';
                 bioDisplay.style.display = 'block';
-                editBtn.style.display = 'none';
+                editBtn.style.display = 'inline-block';
                 saveBtn.style.display = 'none';
+            }
+        }
+    }
+
+    function toggleEdit() {
+        isEditing = true;
+        const isMe = currentProfileUser.username === window.currentUsername;
+        updateProfileUIState(isMe, true);
+    }
+
+    function saveProfile() {
+        const realname = document.getElementById('profile-realname-input').value.trim();
+        const bio = document.getElementById('profile-bio-input').value.trim();
+
+        if (!realname) {
+            alert('真实姓名不能为空！');
+            return;
+        }
+
+        fetch('/update_profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ realname: realname, bio: bio })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                currentProfileUser.realname = realname;
+                currentProfileUser.bio = bio;
+
+                document.getElementById('profile-realname-display').innerText = realname;
+                document.getElementById('profile-bio-display').innerText = bio || '这个人很懒，什么都没写';
+
+                isEditing = false;
+                const isMe = currentProfileUser.username === window.currentUsername;
+                updateProfileUIState(isMe, false);
+
+                // 重新获取用户列表以恢复原始顺序
+                fetch('/online_users')
+                    .then(res => res.json())
+                    .then(data => {
+                        updateUserList(data.users);
+                    });
+
+                alert('资料更新成功！');
             } else {
-                if (editing) {
-                    realnameInput.style.display = 'block';
-                    bioInput.style.display = 'block';
-                    realnameDisplay.style.display = 'none';
-                    bioDisplay.style.display = 'none';
-                    editBtn.style.display = 'none';
-                    saveBtn.style.display = 'inline-block';
-                } else {
-                    realnameInput.style.display = 'none';
-                    bioInput.style.display = 'none';
-                    realnameDisplay.style.display = 'block';
-                    bioDisplay.style.display = 'block';
-                    editBtn.style.display = 'inline-block';
-                    saveBtn.style.display = 'none';
-                }
+                alert('更新失败：' + data.message);
             }
-        }
-
-        function toggleEdit() {
-            isEditing = true;
-            const isMe = currentProfileUser.username === window.currentUsername;
-            updateProfileUIState(isMe, true);
-        }
-
-        function saveProfile() {
-            const realname = document.getElementById('profile-realname-input').value.trim();
-            const bio = document.getElementById('profile-bio-input').value.trim();
-
-            if (!realname) {
-                alert('真实姓名不能为空！');
-                return;
-            }
-
-            fetch('/update_profile', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ realname: realname, bio: bio })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    currentProfileUser.realname = realname;
-                    currentProfileUser.bio = bio;
-
-                    document.getElementById('profile-realname-display').innerText = realname;
-                    document.getElementById('profile-bio-display').innerText = bio || '这个人很懒，什么都没写';
-
-                    isEditing = false;
-                    const isMe = currentProfileUser.username === window.currentUsername;
-                    updateProfileUIState(isMe, false);
-
-                    fetch('/online_users')
-                        .then(res => res.json())
-                        .then(data => {
-                            updateUserList(data.users);
-                        });
-
-                    alert('资料更新成功！');
-                } else {
-                    alert('更新失败：' + data.message);
-                }
-            })
-            .catch(err => {
-                alert('网络错误，请重试');
-                console.error(err);
-            });
-        }
-    </script>
-
-    <script>
-        function cleanupOldAnnouncements(max = 10) {
-            const keys = Object.keys(localStorage)
-                .filter(k => k.startsWith('announcement_read_'))
-                .sort(); // 按 id 排序
-
-            if (keys.length > max) {
-                keys.slice(0, keys.length - max)
-                    .forEach(k => localStorage.removeItem(k));
-            }
-        }
-        cleanupOldAnnouncements(10);
-        document.addEventListener("DOMContentLoaded", function () {
-            const ANNOUNCEMENT = {
-                id: "2026-07-07-11-11",
-                title: "更新公告",
-                content: [
-                    "公告时间:2026-07-07 11:11",
-                    '<span style="color: #000; font-weight: 500;">更新内容：</span>',
-                    "&nbsp;&nbsp;&nbsp;&nbsp;1.新增个人主页的功能，可通过点击侧边栏的用户列表中的用户来查看🥰",
-                    "&nbsp;&nbsp;&nbsp;&nbsp;2.新增公告功能😍",
-                    "&nbsp;&nbsp;&nbsp;&nbsp;3.修复了排序不工作的问题🤔",
-                    "&nbsp;&nbsp;&nbsp;&nbsp;4.新增了入场动画😭",
-                    '<span style="color: #000; font-weight: 500;">更新要求：</span>',
-                    "&nbsp;&nbsp;&nbsp;&nbsp;1.务必填写您的个人主页，尤其是真实姓名(可用拼音首字母代替)😡",
-                    "&nbsp;&nbsp;&nbsp;&nbsp;2.我好无聊😭",
-                ],
-                duration: 6000
-            };
-
-            const storageKey = "announcement_read_" + ANNOUNCEMENT.id;
-            const modal = document.getElementById("announcementModal");
-            const titleEl = document.getElementById("announcementTitle");
-            const contentEl = document.getElementById("announcementContent");
-            const progressBtn = document.getElementById("progressBtn");
-            const progressBar = document.getElementById("progressBar");
-            const countdownText = document.getElementById("countdownText");
-            const exitText = document.getElementById("exitText");
-
-            // 已读直接跳过
-            if (localStorage.getItem(storageKey)) {
-                // 即使已读，也要显示卡片（没有公告时）
-                return;
-            }
-
-            // 延迟显示公告，让聊天卡片先出现一部分
-            setTimeout(() => {
-                // 填充内容
-                titleEl.textContent = ANNOUNCEMENT.title;
-                contentEl.innerHTML = ANNOUNCEMENT.content.join('<br>');
-                modal.classList.add("active");
-
-                // 进度条动画
-                let elapsed = 0;
-                const timer = setInterval(() => {
-                    elapsed += 100;
-                    const percent = (elapsed / ANNOUNCEMENT.duration) * 100;
-                    progressBar.style.width = `${percent}%`;
-
-                    // 更新倒计时文字
-                    const remaining = Math.ceil((ANNOUNCEMENT.duration - elapsed) / 1000);
-                    if (remaining > 0) {
-                        countdownText.textContent = `${remaining}秒后可退出`;
-                    }
-
-                    // 4秒到，进度条变退出按钮
-                    if (elapsed >= ANNOUNCEMENT.duration) {
-                        clearInterval(timer);
-                        countdownText.style.display = "none";
-                        exitText.style.display = "block";
-                        progressBar.style.width = "100%";
-                        progressBtn.style.cursor = "pointer";
-                        progressBtn.style.filter = "brightness(0.95)";
-                        progressBtn.onclick = closeAnnouncement;
-                    }
-                }, 100);
-            }, 1800); // 等待聊天卡片动画进行到一半时弹出公告
-
-            // 关闭逻辑
-            function closeAnnouncement() {
-                modal.classList.remove("active");
-                localStorage.setItem(storageKey, "1");
-            }
+        })
+        .catch(err => {
+            alert('网络错误，请重试');
+            console.error(err);
         });
-    </script>
+    }
+
+
+
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const ANNOUNCEMENT = {
+        id: "2026-07-07-07-07",
+        title: "更新公告",
+        content: [
+            "公告时间:2026-07-07 7:07",
+            '<span style="color: #000; font-weight: 500;">更新内容：</span>',
+            "&nbsp;&nbsp;&nbsp;&nbsp;1.新增个人主页的功能，可通过点击侧边栏的用户列表中的用户来查看🥰",
+            "&nbsp;&nbsp;&nbsp;&nbsp;2.新增公告功能😍",
+            "&nbsp;&nbsp;&nbsp;&nbsp;3.修复了排序不工作的问题🤔",
+            '<span style="color: #000; font-weight: 500;">更新要求：</span>',
+            "&nbsp;&nbsp;&nbsp;&nbsp;1.务必填写您的个人主页，尤其是真实姓名(可用拼音首字母代替)😡",
+            "&nbsp;&nbsp;&nbsp;&nbsp;2.我好无聊😭",
+        ],
+        duration: 6000
+    };
+
+    const storageKey = "announcement_read_" + ANNOUNCEMENT.id;
+    const modal = document.getElementById("announcementModal");
+    const titleEl = document.getElementById("announcementTitle");
+    const contentEl = document.getElementById("announcementContent");
+    const progressBtn = document.getElementById("progressBtn");
+    const progressBar = document.getElementById("progressBar");
+    const countdownText = document.getElementById("countdownText");
+    const exitText = document.getElementById("exitText");
+
+    // 已读直接跳过
+    if (localStorage.getItem(storageKey)) return;
+
+    // 填充内容
+    titleEl.textContent = ANNOUNCEMENT.title;
+    contentEl.innerHTML = ANNOUNCEMENT.content.join('<br>');
+    modal.classList.add("active");
+
+    // 👇 核心逻辑：4秒进度动画，结束后变退出按钮
+    let elapsed = 0;
+    const timer = setInterval(() => {
+        elapsed += 100;
+        const percent = (elapsed / ANNOUNCEMENT.duration) * 100;
+        progressBar.style.width = `${percent}%`;
+
+        // 更新倒计时文字
+        const remaining = Math.ceil((ANNOUNCEMENT.duration - elapsed) / 1000);
+        if (remaining > 0) {
+            countdownText.textContent = `${remaining}秒后可退出`;
+        }
+
+        // 4秒到，进度条变退出按钮
+        if (elapsed >= ANNOUNCEMENT.duration) {
+            clearInterval(timer);
+            // 隐藏倒计时文字，显示退出文字
+            countdownText.style.display = "none";
+            exitText.style.display = "block";
+            // 进度条充满，变成按钮样式
+            progressBar.style.width = "100%";
+            progressBtn.style.cursor = "pointer";
+            progressBtn.style.filter = "brightness(0.95)";
+            // 点击退出
+            progressBtn.onclick = closeAnnouncement;
+        }
+    }, 100);
+
+    // 关闭逻辑
+    function closeAnnouncement() {
+        modal.classList.remove("active");
+        localStorage.setItem(storageKey, "1");
+        clearInterval(timer);
+    }
+});
+</script>
 </body>
 </html>
