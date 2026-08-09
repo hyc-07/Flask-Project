@@ -8,3 +8,4 @@ gunicorn==26.0.0
 gevent==24.11.1
 psycopg2-binary==2.9.10
 pytz==2024.2
+gevent-websocket>=0.10.1
