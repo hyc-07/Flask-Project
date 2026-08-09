@@ -60,3 +60,19 @@ def update_profile():
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": "服务器错误"}), 500
+
+@chat.route("/online_users")
+@login_required
+def online_users():
+    users = User.query.all()
+    data = []
+    for u in users:
+        data.append({
+            "id": u.id,
+            "username": u.username,
+            "online": u.id in online_user_ids,
+            "realname": u.realname if u.realname else "",
+            "bio": u.bio if u.bio else ""
+        })
+    return jsonify({"users": data})
+

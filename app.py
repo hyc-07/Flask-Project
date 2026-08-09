@@ -6,8 +6,6 @@ from routes.auth import auth
 from routes.chat import chat
 from models import User
 from routes.socket_events import register_socket_events
-from sqlalchemy import text
-
 
 def create_app():
     app = Flask(__name__)
@@ -20,8 +18,8 @@ def create_app():
     socketio = SocketIO(
         app,
         cors_allowed_origins="*",
-        async_mode = "gevent",
-        websocket = True
+        async_mode="gevent",
+        websocket=True
     )
 
     @login_manager.user_loader
@@ -31,25 +29,15 @@ def create_app():
     app.register_blueprint(auth)
     app.register_blueprint(chat)
 
-    with app.app_context():
-        db.create_all()
-
-        try:
-            # 检查列是否存在
-            inspector = db.inspect(db.engine)
-            columns = [col['name'] for col in inspector.get_columns('user')]
-
-            if 'realname' not in columns:
-                db.session.execute(text('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS realname VARCHAR(80) DEFAULT \'\''))
-
-            if 'bio' not in columns:
-                db.session.execute(text('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS bio VARCHAR(200) DEFAULT \'\''))
-
-            db.session.commit()
-            print("✅ 数据库自动迁移完成")
-        except Exception as e:
-            db.session.rollback()
-            print(f"❌ 数据库迁移失败: {e}")
+    # ── 数据库初始化 ──────────────────────────────────────────
+    # 生产环境（Render + Supabase）建议设 AUTO_CREATE_DB=False，
+    # 改用 `python db_migrate.py` 一次性建表 + 初始化管理员。
+    if app.config.get("AUTO_CREATE_DB", False):
+        with app.app_context():
+            db.create_all()
+            print("✅ 数据库自动建表完成 (AUTO_CREATE_DB=True)")
+    else:
+        print("ℹ️  AUTO_CREATE_DB=False，跳过自动建表。请运行: python db_migrate.py")
 
     register_socket_events(socketio)
 
@@ -69,5 +57,3 @@ def wechat_verify():
     print("❌EXISTS:", os.path.exists(file_path))
 
     return send_file(file_path)
-
-
