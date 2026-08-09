@@ -1,3 +1,4 @@
+<!-- templates/register.html -->
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -13,27 +14,25 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #0d0d0d;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 40px 20px;
-            color: #e4e4e4;
         }
 
         .card-container {
             width: 100%;
             max-width: 420px;
-            background: #242424;
+            background: white;
             border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
             padding: 32px;
-            border: 1px solid #3a3a3a;
         }
 
         h2 {
-            color: #e4e4e4;
+            color: #333;
             text-align: center;
             margin-bottom: 24px;
             font-size: 22px;
@@ -46,38 +45,33 @@
         label {
             display: block;
             margin-bottom: 6px;
-            color: #aaa;
+            color: #555;
             font-size: 14px;
         }
 
         input {
             width: 100%;
             padding: 12px 14px;
-            border: 1px solid #444;
+            border: 1px solid #ddd;
             border-radius: 10px;
             outline: none;
             font-size: 14px;
-            background: #2d2d2d;
-            color: #e4e4e4;
-            transition: border-color 0.2s;
         }
 
         input:focus {
-            border-color: #4f8cff;
+            border-color: #007bff;
         }
 
         .error {
-            color: #ff6b6b;
+            color: #ff4d4f;
             font-size: 12px;
             margin-top: 4px;
         }
 
-        /* ✅ 注册提交按钮统一样式 */
-        input[type="submit"],
-        button[type="submit"] {
+        button {
             width: 100%;
             padding: 12px;
-            background: #4f8cff;
+            background: #007bff;
             color: white;
             border: none;
             border-radius: 10px;
@@ -87,25 +81,19 @@
             transition: background 0.2s;
         }
 
-        input[type="submit"]:hover,
-        button[type="submit"]:hover {
-            background: #3a6fd8;
+        button:hover {
+            background: #0056b3;
         }
 
         .login-link {
             text-align: center;
             margin-top: 20px;
             font-size: 14px;
-            color: #999;
         }
 
         .login-link a {
-            color: #4f8cff;
+            color: #007bff;
             text-decoration: none;
-        }
-
-        .login-link a:hover {
-            text-decoration: underline;
         }
 
         .flash {
@@ -117,9 +105,9 @@
         }
 
         .flash.success {
-            background: #1b2d1b;
-            color: #66cc66;
-            border: 1px solid #2e5a2e;
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
         }
     </style>
 </head>
@@ -137,7 +125,7 @@
     {% endwith %}
 
     <form method="post">
-        {{ form.hidden_tag() }}
+        {{ form.hidden_tag() }}  <!-- ✅ CSRF 令牌 -->
 
         <div class="form-group">
             {{ form.username.label }}
@@ -169,9 +157,7 @@
             {% endif %}
         </div>
 
-        <div class="form-group">
-            {{ form.submit() }}
-        </div>
+        {{ form.submit() }}
     </form>
 
     <div class="login-link">
