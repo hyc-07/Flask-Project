@@ -9,6 +9,8 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(200))
 
     realname = db.Column(db.String(80), nullable=True, default='')
+    role = db.Column(db.String(20), nullable=True, default='')  # 'student' 或 'guest'
+    avatar = db.Column(db.String(500), nullable=True, default='')  # 头像URL或路径
     bio = db.Column(db.String(200), nullable=True, default='')
 
     def set_password(self, pwd):
@@ -29,7 +31,7 @@ class Message(db.Model):
 
     user = db.relationship('User', backref='messages')
 
-    # ✅ 新增：返回 UTC+8 时间字符串
+    # ✅ 返回 UTC+8 时间字符串
     @property
     def beijing_time_str(self):
         beijing = pytz.timezone("Asia/Shanghai")

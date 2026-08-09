@@ -1,11 +1,10 @@
 from flask_socketio import emit
 from flask_login import current_user
-from extensions import db       # ✅ 正确
-from models import User, Message  # ✅ 正确
+from extensions import db
+from models import User, Message
 
 # ✅ 在线用户（用 id，更稳定）
 online_user_ids = set()
-
 
 def register_socket_events(socketio):
 
@@ -23,7 +22,7 @@ def register_socket_events(socketio):
             print(f"❌ 用户 {current_user.username} 断开连接")
             emit_user_list(socketio)
 
-    # ✅ 广播【所有用户 + 在线状态】
+    # ✅ 广播【所有用户 + 在线状态 + 头像 + 身份】
     def emit_user_list(socketio):
         users = User.query.all()
         data = []
@@ -34,13 +33,14 @@ def register_socket_events(socketio):
                 "username": u.username,
                 "online": u.id in online_user_ids,
                 "realname": u.realname if u.realname else "",
+                "role": u.role if u.role else "",
+                "avatar": u.avatar if u.avatar else "",
                 "bio": u.bio if u.bio else ""
             })
 
-
         emit('user_list', {'users': data}, broadcast=True)
 
-    # ✅ 消息发送（保持你原有逻辑）
+    # ✅ 消息发送（携带头像和身份）
     @socketio.on('send_message')
     def handle_send_message(data):
         content = data.get('content')
@@ -52,8 +52,14 @@ def register_socket_events(socketio):
         db.session.add(msg)
         db.session.commit()
 
+        # 获取当前用户的头像和身份
+        avatar_url = current_user.avatar if current_user.avatar else ""
+        user_role = current_user.role if current_user.role else ""
+
         emit('new_message', {
             'username': current_user.username,
             'content': content,
-            'timestamp': msg.beijing_time_str
+            'timestamp': msg.beijing_time_str,
+            'avatar': avatar_url,
+            'role': user_role
         }, broadcast=True)

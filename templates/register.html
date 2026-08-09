@@ -1,9 +1,8 @@
-<!-- templates/register.html -->
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>用户注册</title>
     <style>
         * {
@@ -49,7 +48,7 @@
             font-size: 14px;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 12px 14px;
             border: 1px solid #ddd;
@@ -58,7 +57,7 @@
             font-size: 14px;
         }
 
-        input:focus {
+        input:focus, select:focus {
             border-color: #007bff;
         }
 
@@ -109,61 +108,165 @@
             color: #52c41a;
             border: 1px solid #b7eb8f;
         }
+
+        .flash.error {
+            background: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+
+        /* 身份选择卡片样式 */
+        .role-cards {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .role-card {
+            flex: 1;
+            padding: 14px 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .role-card:hover {
+            background: #e2e8f0;
+            border-color: #4a6fa5;
+        }
+
+        .role-card.selected {
+            border-color: #007bff;
+            background-color: #e6f4ff;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .role-card .role-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .role-hint {
+            font-size: 11px;
+            color: #999;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
+    <div class="card-container">
+        <h2>用户注册</h2>
 
-<div class="card-container">
-    <h2>用户注册</h2>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="flash {{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    <form method="post">
-        {{ form.hidden_tag() }}  <!-- ✅ CSRF 令牌 -->
-
-        <div class="form-group">
-            {{ form.username.label }}
-            {{ form.username(size=32) }}
-            {% if form.username.errors %}
-                {% for error in form.username.errors %}
-                    <div class="error">{{ error }}</div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                {{ form.username.label }}
+                {{ form.username(size=32, placeholder="请输入用户名") }}
+                {% if form.username.errors %}
+                    {% for error in form.username.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.realname.label }}
+                {{ form.realname(size=32, placeholder="请输入真实姓名") }}
+                {% if form.realname.errors %}
+                    {% for error in form.realname.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.role.label }}
+                <div class="role-cards" id="roleCards">
+                    <div class="role-card" data-value="student" onclick="selectRole('student', this)">
+                        <span class="role-icon">🎓</span>
+                        911班同学
+                    </div>
+                    <div class="role-card" data-value="guest" onclick="selectRole('guest', this)">
+                        <span class="role-icon">👤</span>
+                        访客
+                    </div>
+                </div>
+                <!-- 隐藏的 select 用于表单提交 -->
+                <div style="display:none">
+                    {{ form.role() }}
+                </div>
+                <div class="role-hint" id="roleHint"></div>
+                {% if form.role.errors %}
+                    {% for error in form.role.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.password.label }}
+                {{ form.password(size=32, placeholder="至少6位密码") }}
+                {% if form.password.errors %}
+                    {% for error in form.password.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.confirm_password.label }}
+                {{ form.confirm_password(size=32, placeholder="再次输入密码") }}
+                {% if form.confirm_password.errors %}
+                    {% for error in form.confirm_password.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            {{ form.submit() }}
+        </form>
+
+        <div class="login-link">
+            已有账号？<a href="{{ url_for('auth.login') }}">去登录</a>
         </div>
-
-        <div class="form-group">
-            {{ form.password.label }}
-            {{ form.password(size=32) }}
-            {% if form.password.errors %}
-                {% for error in form.password.errors %}
-                    <div class="error">{{ error }}</div>
-                {% endfor %}
-            {% endif %}
-        </div>
-
-        <div class="form-group">
-            {{ form.confirm_password.label }}
-            {{ form.confirm_password(size=32) }}
-            {% if form.confirm_password.errors %}
-                {% for error in form.confirm_password.errors %}
-                    <div class="error">{{ error }}</div>
-                {% endfor %}
-            {% endif %}
-        </div>
-
-        {{ form.submit() }}
-    </form>
-
-    <div class="login-link">
-        已有账号？<a href="{{ url_for('auth.login') }}">去登录</a>
     </div>
-</div>
 
+    <script>
+        function selectRole(value, element) {
+            // 更新卡片样式
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+
+            // 更新隐藏的 select 值
+            document.getElementById('role').value = value;
+
+            // 显示提示
+            const hint = document.getElementById('roleHint');
+            if (value === 'guest') {
+                hint.innerText = '💡 访客注册后无需通过验证测试，可直接登录使用';
+                hint.style.color = '#faad14';
+            } else {
+                hint.innerText = '📝 911班同学注册后需要通过验证测试才能登录';
+                hint.style.color = '#888';
+            }
+        }
+    </script>
 </body>
 </html>

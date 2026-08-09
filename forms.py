@@ -1,6 +1,5 @@
-# forms.py
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from models import User
 from extensions import db
@@ -11,6 +10,23 @@ class RegisterForm(FlaskForm):
         validators=[
             DataRequired(message='用户名不能为空'),
             Length(min=3, max=20, message='用户名长度3-20位')
+        ]
+    )
+    realname = StringField(
+        '真实姓名',
+        validators=[
+            DataRequired(message='真实姓名不能为空'),
+            Length(min=1, max=80, message='真实姓名长度1-80位')
+        ]
+    )
+    role = SelectField(
+        '身份',
+        choices=[
+            ('student', '911班同学'),
+            ('guest', '访客')
+        ],
+        validators=[
+            DataRequired(message='请选择身份')
         ]
     )
     password = PasswordField(
