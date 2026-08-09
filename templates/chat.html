@@ -285,23 +285,7 @@
             flex-direction: row-reverse;
         }
 
-        /* ✅ 消息头像 */
-        .msg-avatar {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            background: #007bff;
-            color: #fff;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1em; font-weight: bold;
-            flex-shrink: 0;
-            overflow: hidden;
-            margin-top: 2px;
-        }
-
-        .msg-avatar img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-        }
+        /* ✅ 聊天区头像已彻底移除（仅个人简介保留头像） */
 
         /* ✅ 发送者昵称 */
         .sender-name {
@@ -445,7 +429,6 @@
             .input-area input { padding: 8px 12px; font-size: 14px; min-width: 0; }
             .input-area button { padding: 8px 16px; font-size: 14px; flex-shrink: 0; min-width: 60px; }
             .message-row { max-width: 90%; }
-            .msg-avatar { width: 32px; height: 32px; }
         }
     </style>
 </head>
@@ -594,7 +577,7 @@
      * ✅ 获取身份中文名
      */
     function getRoleLabel(role) {
-        if (role === 'student') return '911班同学';
+        if (role === 'student') return '911';
         if (role === 'guest') return '访客';
         return role || '';
     }
@@ -661,11 +644,9 @@
 
                 const isMe = user.username === window.currentUsername;
                 const dotColor = user.online ? '#66CD66' : '#cccccc';
-                const smallAvatar = getAvatarHtml(user, 24);
 
                 a.innerHTML = `
                     <span class="online-status-dot" style="background:${dotColor}"></span>
-                    ${smallAvatar}
                     <span style="margin-left:6px;">${user.username}${isMe ? ' (我)' : ''}</span>
                 `;
 
@@ -707,18 +688,11 @@
             `;
         }
 
-        // ✅ 头像HTML
-        const avatarHtml = data.avatar
-            ? `<div class="msg-avatar"><img src="${data.avatar}" alt="${data.username}"></div>`
-            : `<div class="msg-avatar">${(data.username || '?').charAt(0).toUpperCase()}</div>`;
-
-        // ✅ 气泡 + 时间
+        // ✅ 气泡 + 时间（头像已彻底移除）
         div.innerHTML = `
             ${senderHtml}
             <div class="message-row">
-                ${isSelf ? '' : avatarHtml}
                 <div class="bubble">${data.content}</div>
-                ${isSelf ? avatarHtml : ''}
             </div>
             <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
         `;
@@ -911,12 +885,12 @@
      */
     document.addEventListener("DOMContentLoaded", function () {
         const ANNOUNCEMENT = {
-            id: "2026-08-09-01",
+            id: "2026-08-09-10-30",
             title: "更新公告",
             content: [
                 "公告时间:2026-08-09",
                 '<br>更新内容：',
-                "&nbsp;&nbsp;&nbsp;&nbsp;1.注册新增真实姓名和身份选项（911班同学/访客）🎉",
+                "&nbsp;&nbsp;&nbsp;&nbsp;1.注册新增真实姓名和身份选项（911/访客）🎉",
                 "&nbsp;&nbsp;&nbsp;&nbsp;2.访客注册无需通过验证测试⚡",
                 "&nbsp;&nbsp;&nbsp;&nbsp;3.聊天消息显示头像👤",
                 "&nbsp;&nbsp;&nbsp;&nbsp;4.个人简介新增身份标签🏷️",
