@@ -752,7 +752,7 @@
         avatarContainer.appendChild(av);
 
         // 用户名 + 开发者头衔
-        const isDeveloper = user.username === 'hyc';
+        const isDeveloper = ['hyc', '测试账号'].includes(data.username);
         let developerBadge = '';
         if (isDeveloper) {
             developerBadge = `<span class="developer-badge">开发者</span>`;
