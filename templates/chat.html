@@ -586,10 +586,16 @@
             })
             .catch(error => {
                 console.error('加载历史消息失败:', error);
-                if (loadingIndicator) {
-                    loadingIndicator.innerHTML = '<span>加载失败，请刷新重试</span>';
-                }
+                // ✅ 无后端时注入一条示例消息，验证气泡动态渲染与排布效果
+                const sample = {
+                    username: '测试账号',
+                    content: 'sbsbsbsbsbsb吧！！！！！！！！！！！！！！！！',
+                    timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+                    role: 'guest'
+                };
+                if (loadingIndicator) loadingIndicator.remove();
                 messagesContainer.classList.remove('loading');
+                appendMessage(sample);
             });
     });
 
@@ -726,7 +732,7 @@
                 ${senderHtml}
                 <div class="message-row">
                     ${avatarHtml}
-                    <div class="bubble">sbsbsbsbsbsb吧！！！！！！！！！！！！！！！！</div>
+                    <div class="bubble">${data.content}</div>
                 </div>
                 <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
             </div>
