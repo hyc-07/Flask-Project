@@ -273,56 +273,25 @@
             align-items: flex-start;
         }
 
-        /* ✅ 消息堆栈：让昵称和气泡行同宽，统一对齐 */
-        .msg-stack {
-            display: flex;
-            flex-direction: column;
-            width: 78%;
-        }
-
-        .message.other .msg-stack { align-items: flex-start; }
-        .message.self .msg-stack { align-items: flex-end; }
-
-        /* ✅ 消息行：头像+气泡水平排列，允许换行让时间掉到气泡下方 */
+        /* ✅ 消息行：头像+气泡水平排列 */
         .message-row {
             display: flex;
-            align-items: flex-start; /* 👈 头像贴顶部，多行消息向下生长 */
+            align-items: flex-start;
             gap: 8px;
-            width: 100%;
-            flex-wrap: wrap; /* 👈 关键：允许时间换行到气泡下方 */
+            max-width: 85%;
         }
 
         .message.self .message-row {
             flex-direction: row-reverse;
         }
 
-        /* ✅ 聊天区消息头像：正方形 + 圆角（非圆形） */
-        .msg-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #007bff;
-            color: #fff;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
+        /* ✅ 聊天区头像已彻底移除（仅个人简介保留头像） */
 
-        .msg-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* ✅ 发送者昵称：在头像正上方，与头像同列 */
+        /* ✅ 发送者昵称 */
         .sender-name {
             font-size: 12px;
             color: #888;
             margin-bottom: 2px;
-            width: 100%;
         }
 
         /* ✅ 开发者头衔样式 */
@@ -353,7 +322,7 @@
 
         /* ✅ 气泡样式 */
         .bubble {
-            max-width: calc(100% - 44px); /* 减去头像宽度+gap，避免溢出 */
+            max-width: 100%;
             padding: 8px 10px;
             border-radius: 12px;
             font-size: 14px;
@@ -373,24 +342,15 @@
             border-bottom-left-radius: 4px;
         }
 
-        /* ✅ 时间样式：紧贴气泡正下方，整行居中 */
+        /* ✅ 时间样式 */
         .time {
             font-size: 9px;
-            color: #b2b2b2;
+            color: #888;
             margin-top: 2px;
-            flex-basis: 100%; /* 占满气泡行剩余宽度 */
-            text-align: center;
-            box-sizing: border-box;
         }
 
-        /* 抵消头像宽度，让时间真正在气泡正下方居中 */
-        .message.self .time {
-            padding-left: 44px; /* 头像36px + gap8px */
-        }
-
-        .message.other .time {
-            padding-right: 44px; /* 头像36px + gap8px */
-        }
+        .self-time { text-align: right; }
+        .other-time { text-align: left; }
 
         /* ✅ 输入区 */
         .input-area {
@@ -436,10 +396,10 @@
         /* ✅ 身份标签样式 */
         .role-badge {
             display: inline-block;
-            font-size: 9px;
-            padding: 1px 5px;
-            border-radius: 8px;
-            margin-left: 3px;
+            font-size: 9px;        /* ✅ 和开发者标签一致 */
+            padding: 1px 5px;      /* ✅ 和开发者标签一致 */
+            border-radius: 8px;     /* ✅ 也顺手统一圆角 */
+            margin-left: 3px;       /* ✅ 改成 margin-left，和开发者标签一样靠右 */
             vertical-align: middle;
         }
         .role-badge.student {
@@ -632,16 +592,17 @@
     }
 
     /**
-     * ✅ 生成头像HTML（优先用自定义头像URL，否则用首字母）—— 正方形圆角
+     * ✅ 生成头像HTML（优先用自定义头像URL，否则用首字母）
      */
     function getAvatarHtml(user, size) {
         size = size || 36;
         const initial = (user.username || '?').charAt(0).toUpperCase();
         const fontSize = Math.round(size * 0.28);
         if (user.avatar && user.avatar.trim() !== '') {
-            return `<div class="msg-avatar" style="width:${size}px;height:${size}px;font-size:${fontSize}px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#007bff;color:#fff;flex-shrink:0;"><img src="/static/${user.avatar}" alt="${user.username}" style="width:100%;height:100%;object-fit:cover;"></div>`;
+            // JS里手动拼接/static/前缀，不用Jinja2语法
+            return `<div class="msg-avatar" style="width:${size}px;height:${size}px;font-size:${fontSize}px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#007bff;color:#fff;flex-shrink:0;"><img src="/static/${user.avatar}" alt="${user.username}" style="width:100%;height:100%;object-fit:cover;"></div>`;
         }
-        return `<div class="msg-avatar" style="width:${size}px;height:${size}px;font-size:${fontSize}px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#007bff;color:#fff;flex-shrink:0;">${initial}</div>`;
+        return `<div class="msg-avatar" style="width:${size}px;height:${size}px;font-size:${fontSize}px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#007bff;color:#fff;flex-shrink:0;">${initial}</div>`;
     }
 
     /**
@@ -697,7 +658,7 @@
     }
 
     /**
-     * ✅ 追加单条消息（时间紧贴气泡正下方居中、昵称在头像上方、多行向下生长）
+     * ✅ 追加单条消息（带头像）
      */
     function appendMessage(data) {
         const div = document.createElement('div');
@@ -712,7 +673,7 @@
             developerBadge = `<span class="developer-badge">开发者</span>`;
         }
 
-        // ✅ 身份标签
+        // ✅ 身份标签（在消息中显示）
         let roleBadge = '';
         if (data.role) {
             const roleLabel = getRoleLabel(data.role);
@@ -720,23 +681,21 @@
             roleBadge = `<span class="role-badge ${roleCls}">${roleLabel}</span>`;
         }
 
-        // ✅ 用户名行：在头像正上方
+        // ✅ 用户名行
         let senderHtml = '';
         if (!isSelf) {
-            senderHtml = `<div class="sender-name">${data.username}${developerBadge}${roleBadge}</div>`;
+            senderHtml = `
+                <div class="sender-name">${data.username}${developerBadge}${roleBadge}</div>
+            `;
         }
 
-        // ✅ 头像 + 气泡 + 时间（时间放在气泡后面，换行后自然到气泡正下方）
-        const avatarHtml = getAvatarHtml(data, 36);
+        // ✅ 气泡 + 时间（头像已彻底移除）
         div.innerHTML = `
-            <div class="msg-stack">
-                ${senderHtml}
-                <div class="message-row">
-                    ${avatarHtml}
-                    <div class="bubble">${data.content}</div>
-                    <div class="time">${data.timestamp}</div>
-                </div>
+            ${senderHtml}
+            <div class="message-row">
+                <div class="bubble">${data.content}</div>
             </div>
+            <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
         `;
         document.getElementById('messages').appendChild(div);
     }
@@ -780,10 +739,11 @@
         currentProfileUser = user;
         isEditing = false;
 
-        // 渲染头像（简介大头像 50px，保持圆形）
+        // 渲染头像（简介大头像 50px）
         const avatarContainer = document.getElementById('profile-avatar');
         avatarContainer.innerHTML = '';
         const profileAvatarHtml = getAvatarHtml(user, 50);
+        // 替换 class 为 profile-avatar 的样式
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = profileAvatarHtml;
         const av = tempDiv.firstChild;
@@ -791,7 +751,6 @@
         av.style.width = '50px';
         av.style.height = '50px';
         av.style.fontSize = '1.4em';
-        av.style.borderRadius = '50%';
         avatarContainer.appendChild(av);
 
         // 用户名 + 开发者头衔
