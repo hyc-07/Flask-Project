@@ -258,7 +258,7 @@
             opacity: 0.7;
         }
 
-        /* ✅ 消息容器：水平布局（头像+内容） */
+        /* ✅ 消息容器 */
         .message {
             margin-bottom: 14px;
             display: flex;
@@ -273,56 +273,25 @@
             align-items: flex-start;
         }
 
-        /* ✅ 消息堆栈：让 昵称/头像+气泡/时间 作为一个整体向内平移并统一对齐 */
+        /* ✅ 消息堆栈：昵称 + (头像+气泡行) + 时间，作为整体 */
         .msg-stack {
             display: flex;
             flex-direction: column;
-            width: 78%;              /* ✅ 与头像+气泡行同宽，名字和时间跟随内移 */
+            width: 78%;
         }
 
         .message.other .msg-stack { align-items: flex-start; }
         .message.self  .msg-stack { align-items: flex-end; }
 
-        /* ✅ 消息行：头像+气泡水平排列 */
-        .message-row {
-            display: flex;
-            align-items: flex-end;   /* ✅ 头像贴近气泡底部 */
-            gap: 8px;
-            width: 100%;            /* ✅ 填满 msg-stack 的宽度 */
-        }
-
-        .message.self .message-row {
-            flex-direction: row-reverse;
-        }
-
-        /* ✅ 聊天区消息头像：正方形 + 圆角（非圆形） */
-        .msg-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;      /* ✅ 正方形圆角 */
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #007bff;
-            color: #fff;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .msg-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* ✅ 发送者昵称 */
+        /* ✅ 发送者昵称（self 和 other 都显示在头像+气泡上方） */
         .sender-name {
             font-size: 12px;
             color: #888;
-            margin-bottom: 2px;
-            width: 100%;            /* ✅ 在 msg-stack 内与气泡同宽内移 */
+            margin-bottom: 3px;
         }
+
+        .message.other .sender-name { margin-left: 44px; }
+        .message.self  .sender-name { margin-right: 44px; }
 
         /* ✅ 开发者头衔样式 */
         .developer-badge {
@@ -346,13 +315,48 @@
             100% { opacity: 0.9; }
         }
 
-        .message.self .sender-name {
-            display: none;
+        /* ✅ 消息行：头像+气泡水平排列 */
+        .message-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .message.self .message-row {
+            flex-direction: row-reverse;
+        }
+
+        /* ✅ 气泡包裹器：气泡+时间垂直排列，与头像同列对齐 */
+        .bubble-wrap {
+            display: flex;
+            flex-direction: column;
+            max-width: calc(100% - 44px);
+        }
+
+        /* ✅ 聊天区消息头像：正方形 + 圆角（非圆形） */
+        .msg-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #007bff;
+            color: #fff;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .msg-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         /* ✅ 气泡样式 */
         .bubble {
-            max-width: 100%;
             padding: 8px 10px;
             border-radius: 12px;
             font-size: 14px;
@@ -377,7 +381,6 @@
             font-size: 9px;
             color: #888;
             margin-top: 2px;
-            width: 100%;            /* ✅ 在 msg-stack 内与气泡同宽内移 */
         }
 
         .self-time { text-align: right; }
@@ -586,16 +589,10 @@
             })
             .catch(error => {
                 console.error('加载历史消息失败:', error);
-                // ✅ 无后端时注入一条示例消息，验证气泡动态渲染与排布效果
-                const sample = {
-                    username: '测试账号',
-                    content: 'sbsbsbsbsbsb吧！！！！！！！！！！！！！！！！',
-                    timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-                    role: 'guest'
-                };
-                if (loadingIndicator) loadingIndicator.remove();
+                if (loadingIndicator) {
+                    loadingIndicator.innerHTML = '<span>加载失败，请刷新重试</span>';
+                }
                 messagesContainer.classList.remove('loading');
-                appendMessage(sample);
             });
     });
 
@@ -694,7 +691,7 @@
     }
 
     /**
-     * ✅ 追加单条消息（名字/头像+气泡/时间 作为整体内移）
+     * ✅ 追加单条消息（昵称在上方，头像+气泡在同一行，时间在气泡下方）
      */
     function appendMessage(data) {
         const div = document.createElement('div');
@@ -717,24 +714,23 @@
             roleBadge = `<span class="role-badge ${roleCls}">${roleLabel}</span>`;
         }
 
-        // ✅ 用户名行
-        let senderHtml = '';
-        if (!isSelf) {
-            senderHtml = `
-                <div class="sender-name">${data.username}${developerBadge}${roleBadge}</div>
-            `;
-        }
+        // ✅ 用户名行（self 和 other 都显示）
+        const senderHtml = `
+            <div class="sender-name">${data.username}${developerBadge}${roleBadge}</div>
+        `;
 
-        // ✅ 头像 + 气泡 + 时间，统一包进 msg-stack 向内平移
+        // ✅ 头像 + 气泡 + 时间，统一包进 msg-stack
         const avatarHtml = getAvatarHtml(data, 36);
         div.innerHTML = `
             <div class="msg-stack">
                 ${senderHtml}
                 <div class="message-row">
                     ${avatarHtml}
-                    <div class="bubble">${data.content}</div>
+                    <div class="bubble-wrap">
+                        <div class="bubble">${data.content}</div>
+                        <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
+                    </div>
                 </div>
-                <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
             </div>
         `;
         document.getElementById('messages').appendChild(div);
