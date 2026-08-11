@@ -273,22 +273,23 @@
             align-items: flex-start;
         }
 
-        /* ✅ 消息堆栈：让 昵称/头像+气泡/时间 作为一个整体向内平移并统一对齐 */
+        /* ✅ 消息堆栈：让昵称和气泡行同宽，统一对齐 */
         .msg-stack {
             display: flex;
             flex-direction: column;
-            width: 78%;              /* ✅ 与头像+气泡行同宽，名字和时间跟随内移 */
+            width: 78%;
         }
 
         .message.other .msg-stack { align-items: flex-start; }
-        .message.self  .msg-stack { align-items: flex-end; }
+        .message.self .msg-stack { align-items: flex-end; }
 
-        /* ✅ 消息行：头像+气泡水平排列 */
+        /* ✅ 消息行：头像+气泡水平排列，允许换行让时间掉到气泡下方 */
         .message-row {
             display: flex;
-            align-items: flex-end;   /* ✅ 头像贴近气泡底部 */
+            align-items: flex-start; /* 👈 头像贴顶部，多行消息向下生长 */
             gap: 8px;
-            width: 100%;            /* ✅ 填满 msg-stack 的宽度 */
+            width: 100%;
+            flex-wrap: wrap; /* 👈 关键：允许时间换行到气泡下方 */
         }
 
         .message.self .message-row {
@@ -299,7 +300,7 @@
         .msg-avatar {
             width: 36px;
             height: 36px;
-            border-radius: 8px;      /* ✅ 正方形圆角 */
+            border-radius: 8px;
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -316,12 +317,12 @@
             object-fit: cover;
         }
 
-        /* ✅ 发送者昵称 */
+        /* ✅ 发送者昵称：在头像正上方，与头像同列 */
         .sender-name {
             font-size: 12px;
             color: #888;
             margin-bottom: 2px;
-            width: 100%;            /* ✅ 在 msg-stack 内与气泡同宽内移 */
+            width: 100%;
         }
 
         /* ✅ 开发者头衔样式 */
@@ -352,7 +353,7 @@
 
         /* ✅ 气泡样式 */
         .bubble {
-            max-width: 100%;
+            max-width: calc(100% - 44px); /* 减去头像宽度+gap，避免溢出 */
             padding: 8px 10px;
             border-radius: 12px;
             font-size: 14px;
@@ -372,16 +373,24 @@
             border-bottom-left-radius: 4px;
         }
 
-        /* ✅ 时间样式 */
+        /* ✅ 时间样式：紧贴气泡正下方，整行居中 */
         .time {
             font-size: 9px;
-            color: #888;
+            color: #b2b2b2;
             margin-top: 2px;
-            width: 100%;            /* ✅ 在 msg-stack 内与气泡同宽内移 */
+            flex-basis: 100%; /* 占满气泡行剩余宽度 */
+            text-align: center;
+            box-sizing: border-box;
         }
 
-        .self-time { text-align: right; }
-        .other-time { text-align: left; }
+        /* 抵消头像宽度，让时间真正在气泡正下方居中 */
+        .message.self .time {
+            padding-left: 44px; /* 头像36px + gap8px */
+        }
+
+        .message.other .time {
+            padding-right: 44px; /* 头像36px + gap8px */
+        }
 
         /* ✅ 输入区 */
         .input-area {
@@ -688,7 +697,7 @@
     }
 
     /**
-     * ✅ 追加单条消息（名字/头像+气泡/时间 作为整体内移）
+     * ✅ 追加单条消息（时间紧贴气泡正下方居中、昵称在头像上方、多行向下生长）
      */
     function appendMessage(data) {
         const div = document.createElement('div');
@@ -711,15 +720,13 @@
             roleBadge = `<span class="role-badge ${roleCls}">${roleLabel}</span>`;
         }
 
-        // ✅ 用户名行
+        // ✅ 用户名行：在头像正上方
         let senderHtml = '';
         if (!isSelf) {
-            senderHtml = `
-                <div class="sender-name">${data.username}${developerBadge}${roleBadge}</div>
-            `;
+            senderHtml = `<div class="sender-name">${data.username}${developerBadge}${roleBadge}</div>`;
         }
 
-        // ✅ 头像 + 气泡 + 时间，统一包进 msg-stack 向内平移
+        // ✅ 头像 + 气泡 + 时间（时间放在气泡后面，换行后自然到气泡正下方）
         const avatarHtml = getAvatarHtml(data, 36);
         div.innerHTML = `
             <div class="msg-stack">
@@ -727,8 +734,8 @@
                 <div class="message-row">
                     ${avatarHtml}
                     <div class="bubble">${data.content}</div>
+                    <div class="time">${data.timestamp}</div>
                 </div>
-                <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
             </div>
         `;
         document.getElementById('messages').appendChild(div);
