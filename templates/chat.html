@@ -427,10 +427,10 @@
         /* ✅ 身份标签样式 */
         .role-badge {
             display: inline-block;
-            font-size: 9px;        /* ✅ 和开发者标签一致 */
-            padding: 1px 5px;      /* ✅ 和开发者标签一致 */
-            border-radius: 8px;     /* ✅ 也顺手统一圆角 */
-            margin-left: 3px;       /* ✅ 改成 margin-left，和开发者标签一样靠右 */
+            font-size: 9px;
+            padding: 1px 5px;
+            border-radius: 8px;
+            margin-left: 3px;
             vertical-align: middle;
         }
         .role-badge.student {
@@ -623,14 +623,13 @@
     }
 
     /**
-     * ✅ 生成头像HTML（优先用自定义头像URL，否则用首字母）
+     * ✅ 生成头像HTML（优先用自定义头像URL，否则用首字母）—— 正方形圆角
      */
     function getAvatarHtml(user, size) {
         size = size || 36;
         const initial = (user.username || '?').charAt(0).toUpperCase();
         const fontSize = Math.round(size * 0.28);
         if (user.avatar && user.avatar.trim() !== '') {
-            // JS里手动拼接/static/前缀，不用Jinja2语法
             return `<div class="msg-avatar" style="width:${size}px;height:${size}px;font-size:${fontSize}px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#007bff;color:#fff;flex-shrink:0;"><img src="/static/${user.avatar}" alt="${user.username}" style="width:100%;height:100%;object-fit:cover;"></div>`;
         }
         return `<div class="msg-avatar" style="width:${size}px;height:${size}px;font-size:${fontSize}px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#007bff;color:#fff;flex-shrink:0;">${initial}</div>`;
@@ -689,7 +688,7 @@
     }
 
     /**
-     * ✅ 追加单条消息（带头像）
+     * ✅ 追加单条消息（名字/头像+气泡/时间 作为整体内移）
      */
     function appendMessage(data) {
         const div = document.createElement('div');
@@ -704,7 +703,7 @@
             developerBadge = `<span class="developer-badge">开发者</span>`;
         }
 
-        // ✅ 身份标签（在消息中显示）
+        // ✅ 身份标签
         let roleBadge = '';
         if (data.role) {
             const roleLabel = getRoleLabel(data.role);
@@ -720,7 +719,7 @@
             `;
         }
 
-        // ✅ 气泡 + 时间（头像显示在消息旁；名字/气泡/时间统一包进 msg-stack 向内平移）
+        // ✅ 头像 + 气泡 + 时间，统一包进 msg-stack 向内平移
         const avatarHtml = getAvatarHtml(data, 36);
         div.innerHTML = `
             <div class="msg-stack">
@@ -774,11 +773,10 @@
         currentProfileUser = user;
         isEditing = false;
 
-        // 渲染头像（简介大头像 50px）
+        // 渲染头像（简介大头像 50px，保持圆形）
         const avatarContainer = document.getElementById('profile-avatar');
         avatarContainer.innerHTML = '';
         const profileAvatarHtml = getAvatarHtml(user, 50);
-        // 替换 class 为 profile-avatar 的样式
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = profileAvatarHtml;
         const av = tempDiv.firstChild;
@@ -786,6 +784,7 @@
         av.style.width = '50px';
         av.style.height = '50px';
         av.style.fontSize = '1.4em';
+        av.style.borderRadius = '50%';
         avatarContainer.appendChild(av);
 
         // 用户名 + 开发者头衔
