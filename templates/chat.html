@@ -273,12 +273,22 @@
             align-items: flex-start;
         }
 
+        /* ✅ 消息堆栈：让 昵称/头像+气泡/时间 作为一个整体向内平移并统一对齐 */
+        .msg-stack {
+            display: flex;
+            flex-direction: column;
+            width: 78%;              /* ✅ 与头像+气泡行同宽，名字和时间跟随内移 */
+        }
+
+        .message.other .msg-stack { align-items: flex-start; }
+        .message.self  .msg-stack { align-items: flex-end; }
+
         /* ✅ 消息行：头像+气泡水平排列 */
         .message-row {
             display: flex;
             align-items: flex-end;   /* ✅ 头像贴近气泡底部 */
             gap: 8px;
-            max-width: 78%;          /* ✅ 稍收窄，为头像挪出位置 */
+            width: 100%;            /* ✅ 填满 msg-stack 的宽度 */
         }
 
         .message.self .message-row {
@@ -311,6 +321,7 @@
             font-size: 12px;
             color: #888;
             margin-bottom: 2px;
+            width: 100%;            /* ✅ 在 msg-stack 内与气泡同宽内移 */
         }
 
         /* ✅ 开发者头衔样式 */
@@ -366,6 +377,7 @@
             font-size: 9px;
             color: #888;
             margin-top: 2px;
+            width: 100%;            /* ✅ 在 msg-stack 内与气泡同宽内移 */
         }
 
         .self-time { text-align: right; }
@@ -708,15 +720,17 @@
             `;
         }
 
-        // ✅ 气泡 + 时间（头像显示在消息旁，气泡往内平移）
+        // ✅ 气泡 + 时间（头像显示在消息旁；名字/气泡/时间统一包进 msg-stack 向内平移）
         const avatarHtml = getAvatarHtml(data, 36);
         div.innerHTML = `
-            ${senderHtml}
-            <div class="message-row">
-                ${avatarHtml}
-                <div class="bubble">${data.content}</div>
+            <div class="msg-stack">
+                ${senderHtml}
+                <div class="message-row">
+                    ${avatarHtml}
+                    <div class="bubble">${data.content}</div>
+                </div>
+                <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
             </div>
-            <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
         `;
         document.getElementById('messages').appendChild(div);
     }
