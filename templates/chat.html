@@ -273,25 +273,55 @@
             align-items: flex-start;
         }
 
+        /* ✅ 消息堆栈：让 昵称/头像+气泡/时间 作为一个整体向内平移并统一对齐 */
+        .msg-stack {
+            display: flex;
+            flex-direction: column;
+            width: 78%;              /* ✅ 与头像+气泡行同宽，名字和时间跟随内移 */
+        }
+
+        .message.other .msg-stack { align-items: flex-start; }
+        .message.self  .msg-stack { align-items: flex-end; }
+
         /* ✅ 消息行：头像+气泡水平排列 */
         .message-row {
             display: flex;
-            align-items: flex-start;
+            align-items: flex-end;   /* ✅ 头像贴近气泡底部 */
             gap: 8px;
-            max-width: 85%;
+            width: 100%;            /* ✅ 填满 msg-stack 的宽度 */
         }
 
         .message.self .message-row {
             flex-direction: row-reverse;
         }
 
-        /* ✅ 聊天区头像已彻底移除（仅个人简介保留头像） */
+        /* ✅ 聊天区消息头像：正方形 + 圆角（非圆形） */
+        .msg-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;      /* ✅ 正方形圆角 */
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #007bff;
+            color: #fff;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .msg-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
         /* ✅ 发送者昵称 */
         .sender-name {
             font-size: 12px;
             color: #888;
             margin-bottom: 2px;
+            width: 100%;            /* ✅ 在 msg-stack 内与气泡同宽内移 */
         }
 
         /* ✅ 开发者头衔样式 */
@@ -347,6 +377,7 @@
             font-size: 9px;
             color: #888;
             margin-top: 2px;
+            width: 100%;            /* ✅ 在 msg-stack 内与气泡同宽内移 */
         }
 
         .self-time { text-align: right; }
@@ -396,10 +427,10 @@
         /* ✅ 身份标签样式 */
         .role-badge {
             display: inline-block;
-            font-size: 9px;        /* ✅ 和开发者标签一致 */
-            padding: 1px 5px;      /* ✅ 和开发者标签一致 */
-            border-radius: 8px;     /* ✅ 也顺手统一圆角 */
-            margin-left: 3px;       /* ✅ 改成 margin-left，和开发者标签一样靠右 */
+            font-size: 9px;
+            padding: 1px 5px;
+            border-radius: 8px;
+            margin-left: 3px;
             vertical-align: middle;
         }
         .role-badge.student {
@@ -592,17 +623,16 @@
     }
 
     /**
-     * ✅ 生成头像HTML（优先用自定义头像URL，否则用首字母）
+     * ✅ 生成头像HTML（优先用自定义头像URL，否则用首字母）—— 正方形圆角
      */
     function getAvatarHtml(user, size) {
         size = size || 36;
         const initial = (user.username || '?').charAt(0).toUpperCase();
         const fontSize = Math.round(size * 0.28);
         if (user.avatar && user.avatar.trim() !== '') {
-            // JS里手动拼接/static/前缀，不用Jinja2语法
-            return `<div class="msg-avatar" style="width:${size}px;height:${size}px;font-size:${fontSize}px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#007bff;color:#fff;flex-shrink:0;"><img src="/static/${user.avatar}" alt="${user.username}" style="width:100%;height:100%;object-fit:cover;"></div>`;
+            return `<div class="msg-avatar" style="width:${size}px;height:${size}px;font-size:${fontSize}px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#007bff;color:#fff;flex-shrink:0;"><img src="/static/${user.avatar}" alt="${user.username}" style="width:100%;height:100%;object-fit:cover;"></div>`;
         }
-        return `<div class="msg-avatar" style="width:${size}px;height:${size}px;font-size:${fontSize}px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#007bff;color:#fff;flex-shrink:0;">${initial}</div>`;
+        return `<div class="msg-avatar" style="width:${size}px;height:${size}px;font-size:${fontSize}px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#007bff;color:#fff;flex-shrink:0;">${initial}</div>`;
     }
 
     /**
@@ -658,7 +688,7 @@
     }
 
     /**
-     * ✅ 追加单条消息（带头像）
+     * ✅ 追加单条消息（名字/头像+气泡/时间 作为整体内移）
      */
     function appendMessage(data) {
         const div = document.createElement('div');
@@ -673,7 +703,7 @@
             developerBadge = `<span class="developer-badge">开发者</span>`;
         }
 
-        // ✅ 身份标签（在消息中显示）
+        // ✅ 身份标签
         let roleBadge = '';
         if (data.role) {
             const roleLabel = getRoleLabel(data.role);
@@ -689,13 +719,17 @@
             `;
         }
 
-        // ✅ 气泡 + 时间（头像已彻底移除）
+        // ✅ 头像 + 气泡 + 时间，统一包进 msg-stack 向内平移
+        const avatarHtml = getAvatarHtml(data, 36);
         div.innerHTML = `
-            ${senderHtml}
-            <div class="message-row">
-                <div class="bubble">${data.content}</div>
+            <div class="msg-stack">
+                ${senderHtml}
+                <div class="message-row">
+                    ${avatarHtml}
+                    <div class="bubble">sbsbsbsbsbsb吧！！！！！！！！！！！！！！！！</div>
+                </div>
+                <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
             </div>
-            <div class="time ${isSelf ? 'self-time' : 'other-time'}">${data.timestamp}</div>
         `;
         document.getElementById('messages').appendChild(div);
     }
@@ -739,11 +773,10 @@
         currentProfileUser = user;
         isEditing = false;
 
-        // 渲染头像（简介大头像 50px）
+        // 渲染头像（简介大头像 50px，保持圆形）
         const avatarContainer = document.getElementById('profile-avatar');
         avatarContainer.innerHTML = '';
         const profileAvatarHtml = getAvatarHtml(user, 50);
-        // 替换 class 为 profile-avatar 的样式
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = profileAvatarHtml;
         const av = tempDiv.firstChild;
@@ -751,6 +784,7 @@
         av.style.width = '50px';
         av.style.height = '50px';
         av.style.fontSize = '1.4em';
+        av.style.borderRadius = '50%';
         avatarContainer.appendChild(av);
 
         // 用户名 + 开发者头衔
