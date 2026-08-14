@@ -76,3 +76,11 @@ def wechat_verify():
     print("❌EXISTS:", os.path.exists(file_path))
 
     return send_file(file_path)
+
+@app.route('/sw.js')
+def service_worker():
+    """PWA Service Worker - 必须从根路径提供以获得根 scope"""
+    return send_file(
+        os.path.join(app.static_folder, 'sw.js'),
+        mimetype='application/javascript'
+    )

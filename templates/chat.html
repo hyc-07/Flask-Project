@@ -459,6 +459,16 @@
             .message-row { max-width: 90%; }
         }
     </style>
+    <!-- PWA -->
+    <meta name="theme-color" content="#11998e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="聊天室">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/static/icons/icon-512x512.png">
 </head>
 <body>
 
@@ -979,5 +989,17 @@
     });
 </script>
 
+    <!-- PWA Service Worker -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                console.log('PWA: Service Worker 注册成功', reg.scope);
+            }).catch(function(err) {
+                console.log('PWA: Service Worker 注册失败', err);
+            });
+        });
+    }
+    </script>
 </body>
 </html>
