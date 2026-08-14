@@ -1,6 +1,6 @@
 {
-  "name": "hyc_chat",
-  "short_name": "hyc_chat",
+  "name": "hyc",
+  "short_name": "hyc",
   "description": "实时聊天应用",
   "start_url": "/",
   "scope": "/",
